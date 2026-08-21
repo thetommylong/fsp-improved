@@ -137,6 +137,10 @@ function gmFetch<T>(
       onerror(err) {
         reject(new Error(`Network error: ${err.statusText || "unknown"}`));
       },
+      timeout: 15_000,
+      ontimeout() {
+        reject(new Error("Request timed out"));
+      },
     });
   });
 }
@@ -160,6 +164,10 @@ function gmFetchRaw(
       },
       onerror(err) {
         reject(new Error(`Network error: ${err.statusText || "unknown"}`));
+      },
+      timeout: 15_000,
+      ontimeout() {
+        reject(new Error("Request timed out"));
       },
     });
   });

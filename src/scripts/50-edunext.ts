@@ -4,7 +4,7 @@ import "../styles/catppuccin.css";
 import { notify } from "../notifications";
 import { createLogger } from "../log";
 import { getSecret } from "../secrets";
-import { site } from "src/site";
+import { site } from "../site";
 
 const log = createLogger("edunext");
 const GEMINI_MODEL = "gemini-3.5-flash-lite";

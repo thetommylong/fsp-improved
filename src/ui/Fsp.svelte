@@ -2,6 +2,7 @@
   import { getUserById, getUserImage } from "../api";
   import { notify } from "../notifications";
   import ScheduleView from "./fsp/ScheduleView.svelte";
+  import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
   import menuIcon from "../assets/icons/menu.svg?raw";
   import refreshIcon from "../assets/icons/refresh.svg?raw";
   import notificationsIcon from "../assets/icons/notifications.svg?raw";
@@ -31,12 +32,14 @@
 
   let { userId }: { userId: string } = $props();
 
-  let sidebarOpen = $state(true);
+  let sidebarOpen = $state(!window.matchMedia("(max-width: 768px)").matches);
   let activeNav = $state("home");
   let name = $state("");
   let rollNumber = $state("");
   let avatar = $state<string | null>(null);
   let refreshKey = $state(0);
+  let notifOpen = $state(false);
+  let unreadCount = $state(0);
 
   $effect(() => {
     const id = userId;
@@ -63,7 +66,7 @@
   }
 
   function onNotifications() {
-    notify("Notifications coming soon", "info");
+    notifOpen = !notifOpen;
   }
 
   function onNav(item: NavItem) {
@@ -89,10 +92,14 @@
       </button>
       <button
         class="icon-btn"
-        aria-label="Notifications"
+        class:has-badge={unreadCount > 0}
+        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         onclick={onNotifications}
       >
         {@html notificationsIcon}
+        {#if unreadCount > 0}
+          <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
+        {/if}
       </button>
     </div>
   </header>
@@ -127,4 +134,11 @@
       <ScheduleView studentId={userId} {refreshKey} />
     </main>
   </div>
+
+  <NotificationsPanel
+    {userId}
+    open={notifOpen}
+    onclose={() => (notifOpen = false)}
+    onunread={(n) => (unreadCount = n)}
+  />
 </div>

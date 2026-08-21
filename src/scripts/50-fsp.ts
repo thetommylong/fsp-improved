@@ -4,16 +4,44 @@ import { site } from "../site";
 import Fsp from "../ui/Fsp.svelte";
 import fspCss from "../ui/fsp/fsp.css?inline";
 
+const TOKEN_POLL_MS = 250;
+const TOKEN_WAIT_MS = 15_000;
+
+function waitForValidToken(): Promise<string | null> {
+  return new Promise((resolve) => {
+    const startedAt = Date.now();
+
+    const timer = setInterval(() => {
+      const payload = getTokenPayload();
+      if (payload && !isTokenExpired(payload)) {
+        clearInterval(timer);
+        resolve(payload.userId as string);
+        return;
+      }
+      if (payload && isTokenExpired(payload)) {
+        clearInterval(timer);
+        resolve(null);
+        return;
+      }
+      if (Date.now() - startedAt > TOKEN_WAIT_MS) {
+        clearInterval(timer);
+        resolve(null);
+      }
+    }, TOKEN_POLL_MS);
+  });
+}
+
 export default function () {
   if (site !== "fsp") return;
 
-  const payload = getTokenPayload();
-  if (!payload || isTokenExpired(payload)) return;
+  void waitForValidToken().then((userId) => {
+    if (!userId) return;
+    boot(userId);
+  });
+}
 
-  const userId = payload.userId;
-  if (typeof userId !== "string") return;
-
-  const boot = () => {
+function boot(userId: string) {
+  const start = () => {
     const host = document.createElement("div");
     host.id = "fsp-qol-root";
 
@@ -28,8 +56,8 @@ export default function () {
   };
 
   if (document.body) {
-    boot();
+    start();
   } else {
-    document.addEventListener("DOMContentLoaded", boot);
+    document.addEventListener("DOMContentLoaded", start);
   }
 }
