@@ -472,6 +472,15 @@ export function getNotificationsByRecords(
   );
 }
 
+export function markNotificationAsRead(
+  notificationId: string,
+): Promise<unknown> {
+  return gmFetch<unknown>(
+    `${BASE}/extended-service/notifications/${notificationId}/notification-as-read`,
+    "GET",
+  );
+}
+
 // --- Menu ---
 
 export function getMenuRoleCampuses(

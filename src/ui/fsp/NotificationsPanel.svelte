@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { getAllNotificationTypes, getNotificationsByRecords } from "../../api";
+  import {
+    getAllNotificationTypes,
+    getNotificationsByRecords,
+    markNotificationAsRead,
+  } from "../../api";
   import type { Notification, NotificationsResult } from "../../types/fsp";
   import closeIcon from "../../assets/icons/close.svg?raw";
 
@@ -65,6 +69,28 @@
     return typeCodes.get(n.notificationTypeId) ?? "";
   }
 
+  const marking = new Set<string>();
+
+  async function markRead(n: Notification) {
+    if (n.isRead || marking.has(n.notificationId)) return;
+    marking.add(n.notificationId);
+    n.isRead = true;
+    try {
+      await markNotificationAsRead(n.notificationId);
+      if (result) {
+        result.numberOfUnreadNotifications = Math.max(
+          0,
+          result.numberOfUnreadNotifications - 1,
+        );
+        onunread?.(result.numberOfUnreadNotifications);
+      }
+    } catch {
+      n.isRead = false;
+    } finally {
+      marking.delete(n.notificationId);
+    }
+  }
+
   function relTime(iso: string): string {
     const then = new Date(iso).getTime();
     const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
@@ -112,7 +138,21 @@
           <p class="notif-status">No notifications</p>
         {:else if result}
           {#each result.notifications as n (n.notificationId)}
-            <article class="notif-item" class:unread={!n.isRead}>
+            <div
+              class="notif-item"
+              class:unread={!n.isRead}
+              class:clickable={!n.isRead}
+              role="button"
+              tabindex={n.isRead ? -1 : 0}
+              aria-label={n.isRead ? n.title : `Mark as read: ${n.title}`}
+              onclick={() => markRead(n)}
+              onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  markRead(n);
+                }
+              }}
+            >
               <div class="notif-item-top">
                 {#if typeCode(n)}
                   <span class="notif-type">{typeCode(n)}</span>
@@ -124,7 +164,7 @@
               </div>
               <p class="notif-item-title">{n.title}</p>
               <p class="notif-item-content">{n.content}</p>
-            </article>
+            </div>
           {/each}
         {/if}
       </div>

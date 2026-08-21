@@ -724,6 +724,19 @@
   background: rgba(137, 180, 250, 0.06);
 }
 
+.notif-item.clickable {
+  cursor: pointer;
+}
+
+.notif-item.clickable:hover {
+  background: rgba(137, 180, 250, 0.12);
+}
+
+.notif-item.clickable:focus-visible {
+  outline: 2px solid var(--fsp-blue);
+  outline-offset: -2px;
+}
+
 .notif-item-top {
   display: flex;
   align-items: center;
