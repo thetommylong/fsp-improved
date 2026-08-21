@@ -318,6 +318,166 @@ export interface ClubSubjectType {
   logs: unknown;
 }
 
+export interface NotificationType {
+  notificationTypeId: string;
+  code: string;
+  description: string;
+  isCommon: boolean;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface Notification {
+  notificationId: string;
+  notificationTypeId: string;
+  fromUserId: string;
+  groupId: string;
+  relationId: string;
+  userId: string;
+  appliedUserId: string;
+  isRead: boolean;
+  canBroadcast: boolean;
+  previousValueJson: string;
+  currentValueJson: string;
+  title: string;
+  content: string;
+  campusId: string;
+  userType: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface NotificationsResult {
+  numberOfUnreadNotifications: number;
+  notifications: Notification[];
+}
+
+export interface MenuItem {
+  menuId: string;
+  name: string;
+  description: string;
+  level: number;
+  parentMenuId: string;
+  roleId: string;
+  order: number;
+  isMobile: boolean;
+  segment1: string;
+  path: string;
+  iconType: string;
+  icon: string;
+  clazz: string | null;
+  groupTitle: boolean;
+  badge: string;
+  badgeClass: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface User {
+  id: string;
+  campusId: string;
+  name: string;
+  userName: string;
+  rollNumber: string;
+  userType: string;
+  isActive: boolean;
+  email: string;
+  emailFe: string;
+  emailConfirmed: boolean;
+  phoneNumber: string | null;
+  googleMeetLink: string;
+  gender: boolean;
+  alternativeEmail: string | null;
+  citizenCardId: string | null;
+  lastLoginedInAt: string | null;
+  hasInstalledAppMobile: boolean;
+}
+
+export interface Student {
+  studentId: string;
+  rollNumber: string;
+  altStudentCode: string;
+  middleName: string | null;
+  cardID: string;
+  dateOfIssue: string | null;
+  placeOfIssue: string | null;
+  address: string;
+  street: string;
+  ward: string;
+  province: string;
+  homePhone: string | null;
+  enrolDate: string | null;
+  academicStartYear: number;
+  academicEndYear: number;
+  currentStatus: boolean;
+  currentStatusNote: string | null;
+  healthInsuranceNumber: string | null;
+  externalID: string;
+  nationality: string | null;
+  ethnicity: string | null;
+  religion: string | null;
+  login: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  isAvailable: boolean;
+  gender: boolean;
+  dateOfBirth: string;
+  campusId: string;
+  isIssuedAccount: boolean;
+  isChangedPassword: boolean;
+  isActive: boolean;
+  synchronizedUserIdWithFeId: boolean;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface TimeSlot {
+  timeSlotId: string;
+  slot: number;
+  startHour: number;
+  startMinute: number;
+  endHour: number;
+  endMinute: number;
+  slotLabel: string;
+  termId: string;
+  campusId: string;
+  isAttendance: boolean;
+  createdDate: string;
+  updatedDate: string;
+  logs: unknown;
+}
+
+export interface ScheduleEntry {
+  id: string;
+  date: string;
+  startDateTime: string;
+  endDateTime: string;
+  roomNo: string;
+  lecturerName: string;
+  subjectName: string;
+  expectedStyle: string | null;
+  schedulePlanContent: string;
+  flmSessionNo: number;
+  className: string;
+  slotNo: number;
+  timeSlotId: string;
+  status: string;
+  hasAbsenceRequest: boolean;
+  absenceRequestReason: string | null;
+  comment: string | null;
+  proctorComment: string | null;
+  eduNextUrl: string | null;
+  googleMeetLink: string | null;
+}
+
+export interface SurveyLink {
+  status: boolean;
+  data: unknown;
+}
+
 export interface StudentContext {
   studentId: string;
   userId: string;

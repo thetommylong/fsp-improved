@@ -21,6 +21,14 @@ import type {
   EventStudent,
   Homework,
   StudentContext,
+  NotificationType,
+  NotificationsResult,
+  MenuItem,
+  User,
+  Student,
+  TimeSlot,
+  ScheduleEntry,
+  SurveyLink,
 } from "./types/fsp";
 
 const BASE = "https://api.fpt.edu.vn/fsp/api";
@@ -393,5 +401,87 @@ export function getRewardsByStudent(
 ): Promise<RewardStudent[]> {
   return gmFetch<RewardStudent[]>(
     `${BASE}/student-service/reward-students/${studentId}/by-student`,
+  );
+}
+
+// --- Dormitory ---
+
+export function hasDormBedStudent(studentId: string): Promise<boolean> {
+  return gmFetch<boolean>(
+    `${BASE}/dormitory-management/dorm-bed-students/${studentId}/has-student`,
+  );
+}
+
+// --- Surveys ---
+
+export function getSurveyLink(): Promise<SurveyLink> {
+  return gmFetch<SurveyLink>(
+    `${BASE}/education-management/surveys/get-link-survey`,
+  );
+}
+
+// --- Notifications ---
+
+export function getAllNotificationTypes(): Promise<NotificationType[]> {
+  return gmFetch<NotificationType[]>(
+    `${BASE}/extended-service/notification-types/entities/all`,
+  );
+}
+
+export function getNotificationsByRecords(
+  userId: string,
+  records: number,
+): Promise<NotificationsResult> {
+  return gmFetch<NotificationsResult>(
+    `${BASE}/extended-service/notifications/${userId}/${records}/by-records`,
+  );
+}
+
+// --- Menu ---
+
+export function getMenuRoleCampuses(
+  roleCode: string,
+  campusId: string,
+): Promise<MenuItem[]> {
+  return gmFetch<MenuItem[]>(
+    `${BASE}/identity-management/menu-role-campuses/${roleCode}/${campusId}/by-code`,
+  );
+}
+
+// --- Users ---
+
+export function getUserById(userId: string): Promise<User> {
+  return gmFetch<User>(`${BASE}/user-management/users/${userId}/by-id`);
+}
+
+export function getUserImage(userId: string): Promise<unknown> {
+  return gmFetch<unknown>(
+    `${BASE}/user-management/users/image/${userId}/by-user-id`,
+  );
+}
+
+export function getStudentById(studentId: string): Promise<Student> {
+  return gmFetch<Student>(`${BASE}/user-management/students/${studentId}`);
+}
+
+// --- Schedule ---
+
+export function getTimeSlotsByTerm(termIds: string[]): Promise<TimeSlot[]> {
+  return gmFetch<TimeSlot[]>(
+    `${BASE}/education-management/time-slots/by-term`,
+    "POST",
+    termIds,
+  );
+}
+
+export function getCalendarByStudentAndDateRange(
+  studentId: string,
+  startDate: string,
+  endDate: string,
+): Promise<ScheduleEntry[]> {
+  return gmFetch<ScheduleEntry[]>(
+    `${BASE}/education-management/schedules/get-calendar-by-student-and-date-range`,
+    "POST",
+    { studentId, startDate, endDate },
   );
 }
