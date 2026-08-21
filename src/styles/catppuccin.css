@@ -1,0 +1,49 @@
+@import "@catppuccin/palette/css/catppuccin.css";
+
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
+
+:root {
+  --panel-bg: var(--ctp-mocha-base);
+  --panel-surface: var(--ctp-mocha-surface0);
+  --panel-text: var(--ctp-mocha-text);
+  --panel-subtext: var(--ctp-mocha-subtext0);
+  --panel-overlay: var(--ctp-mocha-overlay0);
+  --panel-border: var(--ctp-mocha-surface1);
+  --panel-accent: var(--ctp-mocha-blue);
+  --panel-accent-hover: var(--ctp-mocha-lavender);
+  --panel-input-bg: var(--ctp-mocha-mantle);
+  --panel-kbd-bg: var(--ctp-mocha-surface1);
+  --panel-kbd-border: var(--ctp-mocha-surface2);
+  --panel-success: var(--ctp-mocha-green);
+  --panel-error: var(--ctp-mocha-red);
+  --panel-info: var(--ctp-mocha-blue);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --panel-bg: var(--ctp-latte-base);
+    --panel-surface: var(--ctp-latte-surface0);
+    --panel-text: var(--ctp-latte-text);
+    --panel-subtext: var(--ctp-latte-subtext0);
+    --panel-overlay: var(--ctp-latte-overlay0);
+    --panel-border: var(--ctp-latte-surface1);
+    --panel-accent: var(--ctp-latte-blue);
+    --panel-accent-hover: var(--ctp-latte-lavender);
+    --panel-input-bg: var(--ctp-latte-mantle);
+    --panel-kbd-bg: var(--ctp-latte-surface1);
+    --panel-kbd-border: var(--ctp-latte-surface2);
+    --panel-success: var(--ctp-latte-green);
+    --panel-error: var(--ctp-latte-red);
+    --panel-info: var(--ctp-latte-blue);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

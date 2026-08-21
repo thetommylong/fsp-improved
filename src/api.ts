@@ -8,6 +8,9 @@ import type {
   KqrlResult,
   Grade,
   Club,
+  Campus,
+  ClubSubject,
+  ClubSubjectType,
   DisciplineLevel,
   DisciplineRuleStudent,
   DisciplineRule,
@@ -38,29 +41,21 @@ function getToken(): string {
   throw new Error("No auth token found");
 }
 
-export function getStudentContext(): StudentContext {
+export async function getStudentContext(): Promise<StudentContext> {
   const token = getToken();
   const payload = JSON.parse(atob(token.split(".")[1]));
   const campusId = payload.campusId || payload.campusID;
   const campusCode = payload.campusCode || "";
-  const raw = payload.projectCampuses;
-  const termOrder = 1;
+
+  let termOrder = 1;
   let academicYear = "2026-2027";
 
-  if (Array.isArray(raw)) {
-    try {
-      const parsed = typeof raw[0] === "string" ? JSON.parse(raw[0]) : raw[0];
-      if (parsed?.RollNumber) {
-        const match = parsed.RollNumber.match(/^(\d{2})(\d{2})/);
-        if (match) {
-          const y1 = 2000 + parseInt(match[1]);
-          const y2 = y1 + 1;
-          academicYear = `${y1}-${y2}`;
-        }
-      }
-    } catch {
-      // RollNumber parse failed — keep default academic year
-    }
+  try {
+    const term = await getDefaultTerm(campusId);
+    termOrder = term.termOrder;
+    academicYear = `${term.academicStartYear}-${term.academicEndYear}`;
+  } catch {
+    // Fallback to defaults if term fetch fails
   }
 
   return {
@@ -267,6 +262,79 @@ export function getEventsByTerm(
 ): Promise<EventStudent[]> {
   return gmFetch<EventStudent[]>(
     `${BASE}/student-service/events/${termId}/${studentId}/by-term-student`,
+  );
+}
+
+// --- Campuses ---
+
+export function getCampusesByIds(campusIds: string[]): Promise<Campus[]> {
+  return gmFetch<Campus[]>(
+    `${BASE}/identity-management/campuses/entities/ids`,
+    "POST",
+    campusIds,
+  );
+}
+
+// --- Club Subjects ---
+
+export function getClubSubjectsByIds(
+  clubSubjectIds: string[],
+): Promise<ClubSubject[]> {
+  return gmFetch<ClubSubject[]>(
+    `${BASE}/education-management/club-subjects/entities/ids`,
+    "POST",
+    clubSubjectIds,
+  );
+}
+
+export function getClubSubjectTypesByIds(
+  clubSubjectIds: string[],
+): Promise<ClubSubjectType[]> {
+  return gmFetch<ClubSubjectType[]>(
+    `${BASE}/education-management/club-subject-types/by-club-subject-ids`,
+    "POST",
+    clubSubjectIds,
+  );
+}
+
+export function getClubStudentStatistics(
+  studentIds: string[],
+): Promise<Record<string, unknown>> {
+  return gmFetch<Record<string, unknown>>(
+    `${BASE}/education-management/clubs/statistic/cache-students`,
+    "POST",
+    studentIds,
+  );
+}
+
+export function getDiscountAndPriceByStudent(
+  termId: string,
+  studentId: string,
+): Promise<unknown> {
+  return gmFetch<unknown>(
+    `${BASE}/education-management/clubs/discount-club-student/${termId}/${studentId}/get-discount-and-price-by-student`,
+  );
+}
+
+// --- Events (extras) ---
+
+export function getEventStatistics(
+  eventIds: string[],
+): Promise<Record<string, unknown>> {
+  return gmFetch<Record<string, unknown>>(
+    `${BASE}/student-service/events/statistic/students`,
+    "POST",
+    eventIds,
+  );
+}
+
+export function getEventImages(
+  eventIds: string[],
+): Promise<Record<string, unknown>> {
+  return gmFetch<Record<string, unknown>>(
+    `${BASE}/student-service/events/images/by-id`,
+    "POST",
+    eventIds,
   );
 }
 

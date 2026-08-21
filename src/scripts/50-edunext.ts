@@ -1,7 +1,10 @@
+import { mount } from "svelte";
+import EdunextPanel from "../ui/EdunextPanel.svelte";
+import "../styles/catppuccin.css";
+import { notify } from "../notifications";
 import { createLogger } from "../log";
 import { getSecret } from "../secrets";
-
-export const site = "edunext";
+import { site } from "src/site";
 
 const log = createLogger("edunext");
 const GEMINI_MODEL = "gemini-3.5-flash-lite";
@@ -14,16 +17,28 @@ function waitForAssistantResponse(): Promise<void> {
     ) {
       return resolve();
     }
-    const observer = new MutationObserver(() => {
+
+    let observer: MutationObserver | null = null;
+
+    const cleanup = () => {
+      observer?.disconnect();
+      observer = null;
+    };
+
+    observer = new MutationObserver(() => {
       if (
         !document.querySelector(".streaming-indicator") &&
         !document.querySelector(".chat-pending-placeholder")
       ) {
-        observer.disconnect();
+        cleanup();
         resolve();
       }
     });
+
     observer.observe(document.body, { childList: true, subtree: true });
+
+    // Safety timeout - disconnect after 60 seconds
+    setTimeout(cleanup, 60000);
   });
 }
 
@@ -36,7 +51,12 @@ function sendMessage(text: string): Promise<boolean> {
   const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
     window.HTMLTextAreaElement.prototype,
     "value",
-  )!.set!;
+  )?.set;
+
+  if (!nativeInputValueSetter) {
+    log.error("Failed to get native input value setter");
+    return Promise.resolve(false);
+  }
 
   nativeInputValueSetter.call(textarea, text);
   textarea.selectionStart = textarea.selectionEnd = text.length;
@@ -73,7 +93,7 @@ function getLatestAssistantResponse(): string {
   const latest = assistantMessages[assistantMessages.length - 1];
   const clone = latest.cloneNode(true) as HTMLElement;
   clone
-    .querySelectorAll("style, script, .chat-pending-placeholder")
+    .querySelectorAll("style, script, .chat-pending-placeholder, .katex-mathml")
     .forEach((el) => el.remove());
 
   let text = clone.innerText;
@@ -103,7 +123,7 @@ function askGemini(promptText: string): Promise<string | null> {
           {
             role: "system",
             content:
-              "You are a precise math assistant for high school students. Rules: 1. Output ONLY the exact required answer format requested by the prompt (e.g., 'Trả lời: [answer]'). 2. NEVER include chatty thoughts, conversational filler, explanations, or self-commentary.",
+              "You are a helpful assistant for high school students. Rules: 1. Output ONLY the exact required answer format requested by the prompt (e.g., 'Trả lời: [answer]'). 2. NEVER include chatty thoughts, conversational filler, explanations, or self-commentary.",
           },
           { role: "user", content: promptText },
         ],
@@ -128,33 +148,34 @@ function askGemini(promptText: string): Promise<string | null> {
 
 export async function runAutopilot(): Promise<void> {
   if (!getSecret("gemini_api_key")) {
-    log.warn(
-      "No Gemini API key found! Set it via: GM_setValue('fsp:gemini_api_key', 'your-key')",
-    );
+    notify("No Gemini API key found", "error");
+    log.warn("bro i have no key");
     return;
   }
 
-  log.log("Full Auto-Pilot Loop Activated!");
+  notify("Autopilot started", "info");
+  log.log("ok running");
 
   const startBtn = document.querySelector(
     ".start-learning-prompt__button",
   ) as HTMLElement | null;
   if (startBtn) {
-    log.log("Clicking 'Bắt đầu học'...");
+    notify("Clicked start button", "success");
+    log.log("alr clicking the start btn");
     startBtn.click();
     await new Promise((r) => setTimeout(r, 2000));
   }
 
   await waitForAssistantResponse();
   let currentText = getLatestAssistantResponse();
-  log.log("[Initial Scraped]:", currentText);
+  log.log(currentText);
 
   if (
     currentText.toLowerCase().includes("sẵn sàng") ||
     currentText.includes("chào") ||
     currentText.length < 150
   ) {
-    log.log("Responding with 'Sẵn sàng'...");
+    log.log("yep got it ahh");
     await sendMessage("Sẵn sàng");
     await new Promise((r) => setTimeout(r, 2000));
   }
@@ -163,15 +184,16 @@ export async function runAutopilot(): Promise<void> {
   for (let step = 0; step < maxSteps; step++) {
     await waitForAssistantResponse();
     currentText = getLatestAssistantResponse();
-    log.log(`--- [Step ${step + 1}] ---`);
-    log.log("Scraped:", currentText);
+    log.log(`running turn ${step + 1}`);
+    log.log(currentText);
 
     if (
       /\d+\/\d+/.test(currentText) ||
       currentText.includes("Hoàn thành") ||
       currentText.includes("Kết quả")
     ) {
-      log.log("Assignment finished/Rating detected! Stopping loop.");
+      notify("Autopilot completed!", "success");
+      log.log("done");
       break;
     }
 
@@ -179,26 +201,46 @@ export async function runAutopilot(): Promise<void> {
       currentText.includes("chuyển sang phần tiếp theo") ||
       currentText.includes("sẵn sàng chưa")
     ) {
-      log.log("Detected transition prompt. Answering 'Sẵn sàng'...");
+      log.log('"yep got it ahhh"');
       await sendMessage("Sẵn sàng");
       await new Promise((r) => setTimeout(r, 2000));
       continue;
     }
 
-    log.log("Asking Gemini for the math answer...");
+    log.log("asking our boy for the answer");
     const answer = await askGemini(currentText);
-    log.log("Gemini Answer:", answer);
+    log.log(answer);
 
     if (!answer) {
-      log.warn("Got empty answer, retrying...");
+      notify("Got no answer, retrying...", "error");
+      log.warn("got nothing, retrying...");
       await new Promise((r) => setTimeout(r, 2000));
       continue;
     }
 
+    notify("Got answer", "success");
     await new Promise((r) => setTimeout(r, 1500));
     await sendMessage(answer);
     await new Promise((r) => setTimeout(r, 2000));
   }
 
-  log.log("Auto-pilot loop completed!");
+  log.log("done!");
+}
+
+unsafeWindow.notify = notify;
+
+function mountUI() {
+  const target = document.createElement("div");
+  document.body.append(target);
+
+  mount(EdunextPanel, { target });
+}
+
+export default function () {
+  if (site !== "edunext") return;
+  if (document.body) {
+    mountUI();
+  } else {
+    document.addEventListener("DOMContentLoaded", mountUI);
+  }
 }

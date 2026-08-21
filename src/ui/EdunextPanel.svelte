@@ -5,48 +5,119 @@
 
   const log = createLogger("EdunextPanel");
 
+  let visible = $state(true);
   let apiKey = $state(getSecret("gemini_api_key") ?? "");
   let running = $state(false);
+  let statusMessage = $state("");
+
+  let dragging = $state(false);
+  let dragOffsetX = $state(0);
+  let dragOffsetY = $state(0);
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let initialOffsetX = 0;
+  let initialOffsetY = 0;
+
+  $effect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        visible = !visible;
+      }
+    }
+    document.addEventListener("keydown", onKeydown);
+    return () => document.removeEventListener("keydown", onKeydown);
+  });
 
   function saveKey() {
     if (apiKey.trim()) {
       setSecret("gemini_api_key", apiKey.trim());
-      log.log("API key saved.");
+      statusMessage = "API key saved.";
+      log.log(statusMessage);
     }
   }
 
   async function start() {
     if (running) return;
     running = true;
+    statusMessage = "Autopilot running...";
     try {
       await runAutopilot();
+      statusMessage = "Autopilot completed.";
     } catch (err) {
-      log.error("Autopilot error:", err);
+      statusMessage = "Autopilot error.";
+      log.error(statusMessage, err);
     } finally {
       running = false;
     }
   }
+
+  function startDrag(e: PointerEvent) {
+    if (e.button !== 0) return;
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    initialOffsetX = dragOffsetX;
+    initialOffsetY = dragOffsetY;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onDrag(e: PointerEvent) {
+    if (!dragging) return;
+    dragOffsetX = initialOffsetX + (e.clientX - dragStartX);
+    dragOffsetY = initialOffsetY + (e.clientY - dragStartY);
+  }
+
+  function stopDrag() {
+    dragging = false;
+  }
 </script>
 
-<div class="panel">
-  <h2>Edunext Autopilot</h2>
-
-  <label for="apiKey">Gemini API Key</label>
-  <div class="row">
-    <input
-      id="apiKey"
-      type="password"
-      placeholder="AIza..."
-      bind:value={apiKey}
-    />
-    <button onclick={saveKey}>Save</button>
+<div
+  class="panel"
+  class:hidden={!visible}
+  role="dialog"
+  aria-label="Edunext Autopilot"
+  aria-hidden={!visible}
+  tabindex={visible ? 0 : -1}
+  style="transform: translate({dragOffsetX}px, {dragOffsetY}px)"
+>
+  <div
+    class="header"
+    class:dragging
+    role="group"
+    aria-label="Drag to move panel"
+    onpointerdown={startDrag}
+    onpointermove={onDrag}
+    onpointerup={stopDrag}
+  >
+    <span class="title">Edunext Autopilot</span>
   </div>
 
-  <button class="start" disabled={running || !apiKey} onclick={start}>
-    {running ? "Running..." : "Start Autopilot"}
-  </button>
+  <div class="body">
+    <label for="apiKey">Gemini API Key</label>
+    <div class="row">
+      <input
+        id="apiKey"
+        type="password"
+        placeholder="AIza..."
+        bind:value={apiKey}
+      />
+      <button onclick={saveKey}>Save</button>
+    </div>
 
-  <p class="hint">You can also press <kbd>F2</kbd> to start.</p>
+    <button class="start" disabled={running || !apiKey} onclick={start}>
+      {running ? "Running..." : "Start Autopilot"}
+    </button>
+
+    <p class="hint" id="hint">
+      Press <kbd>Ctrl+Shift+F</kbd> to toggle
+    </p>
+
+    <div class="sr-only" aria-live="assertive" aria-atomic="true">
+      {statusMessage}
+    </div>
+  </div>
 </div>
 
 <style>
@@ -55,74 +126,114 @@
     bottom: 16px;
     right: 16px;
     width: 300px;
-    background: #1a1a2e;
-    color: #e0e0e0;
-    border: 1px solid #333;
+    background: var(--panel-bg);
+    color: var(--panel-text);
+    border: 1px solid var(--panel-border);
     border-radius: 12px;
-    padding: 16px;
-    font-family: system-ui, sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
     font-size: 14px;
-    z-index: 99999;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    z-index: 2147483;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    will-change: transform;
   }
 
-  h2 {
-    margin: 0 0 12px;
-    font-size: 16px;
-    color: #fff;
+  .panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--panel-border);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .header.dragging {
+    cursor: grabbing;
+  }
+
+  .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--panel-text);
+  }
+
+  .body {
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   label {
+    display: block;
     font-size: 12px;
-    color: #aaa;
+    font-weight: 500;
+    color: var(--panel-subtext);
+    margin-bottom: 4px;
   }
 
   .row {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: 12px;
+    width: 100%;
   }
 
   input {
     flex: 1;
-    padding: 6px 8px;
-    border: 1px solid #444;
+    padding: 6px 10px;
+    border: 1px solid var(--panel-border);
     border-radius: 6px;
-    background: #0f0f23;
-    color: #e0e0e0;
+    background: var(--panel-input-bg);
+    color: var(--panel-text);
     font-size: 13px;
     outline: none;
+    transition: border-color 0.15s ease;
   }
 
-  input:focus {
-    border-color: #6c63ff;
+  input:focus-visible {
+    border-color: var(--panel-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--panel-accent) 30%, transparent);
   }
 
   button {
     padding: 6px 12px;
     border: none;
     border-radius: 6px;
-    background: #333;
-    color: #e0e0e0;
+    background: var(--panel-surface);
+    color: var(--panel-text);
     cursor: pointer;
     font-size: 13px;
+    transition: background 0.15s ease;
   }
 
   button:hover {
-    background: #444;
+    background: var(--panel-border);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--panel-accent);
+    outline-offset: 2px;
   }
 
   .start {
     width: 100%;
-    padding: 8px;
-    background: #6c63ff;
-    color: #fff;
+    padding: 8px 12px;
+    background: var(--panel-accent);
+    color: var(--panel-bg);
     font-weight: 600;
-    margin-top: 4px;
+    border-radius: 6px;
   }
 
   .start:hover:not(:disabled) {
-    background: #5a52d5;
+    background: var(--panel-accent-hover);
   }
 
   .start:disabled {
@@ -131,17 +242,30 @@
   }
 
   .hint {
-    margin: 8px 0 0;
+    margin: 12px 0 0;
     font-size: 11px;
-    color: #777;
+    color: var(--panel-overlay);
     text-align: center;
   }
 
   kbd {
     padding: 1px 5px;
-    border: 1px solid #555;
+    border: 1px solid var(--panel-kbd-border);
     border-radius: 3px;
-    background: #222;
+    background: var(--panel-kbd-bg);
     font-size: 11px;
+    font-family: inherit;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 </style>

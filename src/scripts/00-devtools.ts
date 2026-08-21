@@ -1,23 +1,19 @@
-declare const unsafeWindow: Window;
-
 export default function () {
   if (unsafeWindow.__devtoolsPatchActive) return;
   unsafeWindow.__devtoolsPatchActive = true;
 
-  const pw = unsafeWindow as unknown as Record<
-    string,
-    (...args: unknown[]) => unknown
-  >;
-
-  const _si = pw.setInterval as typeof setInterval;
-
   const noop = function () {};
+  const _si = unsafeWindow.setInterval.bind(unsafeWindow);
 
-  pw.setInterval = function (_fn: unknown, delay?: number) {
-    return _si.call(unsafeWindow, noop, delay ?? 0);
+  unsafeWindow.setInterval = function (
+    _fn: unknown,
+    delay?: number,
+    ..._args: unknown[]
+  ) {
+    return _si(noop, delay ?? 0);
   } as unknown as typeof setInterval;
 
-  pw.close = noop;
+  unsafeWindow.close = noop;
 
   try {
     const lp = Object.getPrototypeOf(unsafeWindow.location);
@@ -71,25 +67,6 @@ export default function () {
         return _assign(url);
       },
     });
-  } catch {
-    // noop
-  }
-
-  try {
-    const ed = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
-    if (ed && ed.set) {
-      const es = ed.set;
-      Object.defineProperty(Element.prototype, "innerHTML", {
-        set(h: string) {
-          if (/disable-devtool/i.test(h)) return;
-          es.call(this, h);
-        },
-        get() {
-          return ed.get ? ed.get.call(this) : "";
-        },
-        configurable: true,
-      });
-    }
   } catch {
     // noop
   }

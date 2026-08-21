@@ -14,9 +14,11 @@ export default function () {
 
           if (
             event.key === "F12" ||
-            (isCmdOrCtrl && event.shiftKey && ["i", "j", "c"].includes(key)) ||
-            (isCmdOrCtrl && key === "u") ||
-            (isCmdOrCtrl && key === "v")
+            (isCmdOrCtrl &&
+              event.shiftKey &&
+              ["i", "j", "c"].includes(key.toLowerCase())) ||
+            (isCmdOrCtrl && key.toLowerCase() === "u") ||
+            (isCmdOrCtrl && key.toLowerCase() === "v")
           ) {
             return;
           }

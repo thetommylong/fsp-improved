@@ -281,6 +281,43 @@ export interface Homework {
   logs: unknown;
 }
 
+export interface Campus {
+  campusId: string;
+  campusCode: string;
+  flmCampusCode: string;
+  eduNextLiteCampusCode: string;
+  campusName: string;
+  parentCampusCode: string;
+  contact: string;
+  provinceCode: string;
+  parentCampusName: string;
+  parentCampusNameEnglish: string;
+  soGD: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+export interface ClubSubject {
+  clubSubjectId: string;
+  clubSubjectName: string;
+  clubSubjectTypeId: string;
+  description: string;
+  campusId: string;
+  createdDate: string;
+  updatedDate: string;
+  logs: unknown;
+}
+
+export interface ClubSubjectType {
+  clubSubjectTypeId: string;
+  clubSubjectTypeName: string;
+  description: string;
+  campusId: string;
+  createdDate: string;
+  updatedDate: string;
+  logs: unknown;
+}
+
 export interface StudentContext {
   studentId: string;
   userId: string;
