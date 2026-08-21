@@ -7,4 +7,3 @@ export function getWeek(day: Temporal.PlainDate): Temporal.PlainDate[] {
     return monday.add({ days: i });
   });
 }
-:qa

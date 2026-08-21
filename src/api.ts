@@ -34,6 +34,9 @@ import type {
 const BASE = "https://api.fpt.edu.vn/fsp/api";
 
 function getToken(): string {
+  const accessToken = localStorage.getItem("access_token");
+  if (accessToken) return accessToken;
+
   const el = document.querySelector(
     'meta[name="Authorization"]',
   ) as HTMLMetaElement | null;
@@ -49,11 +52,35 @@ function getToken(): string {
   throw new Error("No auth token found");
 }
 
+export function getTokenPayload(): Record<string, unknown> | null {
+  let token: string;
+  try {
+    token = getToken();
+  } catch {
+    return null;
+  }
+
+  try {
+    const segment = token.split(".")[1];
+    const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(payload: Record<string, unknown>): boolean {
+  const exp = payload.exp;
+  return typeof exp !== "number" || Date.now() / 1000 >= exp;
+}
+
 export async function getStudentContext(): Promise<StudentContext> {
-  const token = getToken();
-  const payload = JSON.parse(atob(token.split(".")[1]));
-  const campusId = payload.campusId || payload.campusID;
-  const campusCode = payload.campusCode || "";
+  const payload = getTokenPayload();
+  if (!payload) throw new Error("No auth token found");
+
+  const campusId = (payload.campusId || payload.campusID) as string;
+  const campusCode = (payload.campusCode || "") as string;
 
   let termOrder = 1;
   let academicYear = "2026-2027";
@@ -67,14 +94,14 @@ export async function getStudentContext(): Promise<StudentContext> {
   }
 
   return {
-    studentId: payload.userId || payload.sub,
-    userId: payload.userId || payload.sub,
-    email: payload.email || "",
-    username: payload.username || "",
+    studentId: (payload.userId || payload.sub) as string,
+    userId: (payload.userId || payload.sub) as string,
+    email: (payload.email || "") as string,
+    username: (payload.username || "") as string,
     campusId,
     campusCode,
-    role: payload.role || "",
-    userType: payload.userType || "",
+    role: (payload.role || "") as string,
+    userType: (payload.userType || "") as string,
     termOrder,
     academicYear,
   };
@@ -454,10 +481,66 @@ export function getUserById(userId: string): Promise<User> {
   return gmFetch<User>(`${BASE}/user-management/users/${userId}/by-id`);
 }
 
-export function getUserImage(userId: string): Promise<unknown> {
-  return gmFetch<unknown>(
-    `${BASE}/user-management/users/image/${userId}/by-user-id`,
-  );
+export function getUserImage(userId: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    GM_xmlhttpRequest({
+      method: "GET",
+      url: `${BASE}/user-management/users/image/${userId}/by-user-id`,
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      onload(res) {
+        if (res.status !== 200 || !res.responseText) {
+          resolve(null);
+          return;
+        }
+        resolve(extractImageUrl(res.responseText));
+      },
+      onerror() {
+        resolve(null);
+      },
+    });
+  });
+}
+
+function extractImageUrl(text: string): string | null {
+  const trimmed = text.trim();
+  if (/^(data:image\/|https?:\/\/)/.test(trimmed)) return trimmed;
+
+  try {
+    const data = JSON.parse(trimmed) as unknown;
+    const found = findImageUrl(data);
+    if (found) return found;
+  } catch {
+    // not JSON
+  }
+
+  if (/^[A-Za-z0-9+/=]+$/.test(trimmed) && trimmed.length > 100) {
+    return `data:image/png;base64,${trimmed}`;
+  }
+  return null;
+}
+
+function findImageUrl(data: unknown, depth = 0): string | null {
+  if (depth > 4) return null;
+  if (typeof data === "string") {
+    return /^(data:image\/|https?:\/\/)/.test(data) ? data : null;
+  }
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const found = findImageUrl(item, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (data && typeof data === "object") {
+    for (const value of Object.values(data)) {
+      const found = findImageUrl(value, depth + 1);
+      if (found) return found;
+    }
+  }
+  return null;
 }
 
 export function getStudentById(studentId: string): Promise<Student> {
