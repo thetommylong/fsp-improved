@@ -11,9 +11,11 @@
   let {
     studentId,
     refreshKey = 0,
+    dateLabel = $bindable(""),
   }: {
     studentId: string;
     refreshKey?: number;
+    dateLabel?: string;
   } = $props();
 
   const HOUR_PX = 96;
@@ -181,7 +183,7 @@
 
   const isToday = $derived(selectedDate.toString() === todayIso);
 
-  const dateLabel = $derived(
+  const computedLabel = $derived(
     isDesktop
       ? (() => {
           const mon = weekDays[0];
@@ -197,13 +199,17 @@
         }),
   );
 
-  function goTo(delta: number) {
+  $effect(() => {
+    dateLabel = computedLabel;
+  });
+
+  export function goTo(delta: number) {
     selectedDate = selectedDate.add({
       days: isDesktop ? delta * 7 : delta,
     });
   }
 
-  function goToday() {
+  export function goToday() {
     selectedDate = Temporal.Now.plainDateISO();
   }
 
@@ -274,17 +280,6 @@
 </script>
 
 <div class="schedule" class:schedule-loading={loading && entries.length === 0}>
-  <div class="schedule-toolbar">
-    <button class="toolbar-btn" onclick={goToday}>Today</button>
-    <button class="toolbar-btn toolbar-nav" aria-label={isDesktop ? "Previous week" : "Previous day"} onclick={() => goTo(-1)}>
-      ‹
-    </button>
-    <button class="toolbar-btn toolbar-nav" aria-label={isDesktop ? "Next week" : "Next day"} onclick={() => goTo(1)}>
-      ›
-    </button>
-    <span class="schedule-date">{dateLabel}</span>
-  </div>
-
   <div class="schedule-body" bind:this={scroller}>
     {#if isDesktop}
       <div class="schedule-inner" style="height: {gridHeight + DAY_HEADER_H}px">

@@ -43,6 +43,9 @@
   let refreshKey = $state(0);
   let notifOpen = $state(false);
   let unreadCount = $state(0);
+  let scheduleDate = $state("");
+  let schedule: { goTo(delta: number): void; goToday(): void } | undefined =
+    $state();
 
   $effect(() => {
     const id = userId;
@@ -88,6 +91,26 @@
       <button class="icon-btn" aria-label="Toggle menu" onclick={toggleSidebar}>
         {@html svgIcon(menuIcon)}
       </button>
+      <div class="header-nav">
+        <button class="toolbar-btn" onclick={() => schedule?.goToday()}>
+          Today
+        </button>
+        <button
+          class="toolbar-btn toolbar-nav"
+          aria-label="Previous"
+          onclick={() => schedule?.goTo(-1)}
+        >
+          ‹
+        </button>
+        <button
+          class="toolbar-btn toolbar-nav"
+          aria-label="Next"
+          onclick={() => schedule?.goTo(1)}
+        >
+          ›
+        </button>
+        <span class="schedule-date">{scheduleDate}</span>
+      </div>
     </div>
     <div class="header-right">
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
@@ -145,7 +168,12 @@
     </aside>
 
     <main class="main">
-      <ScheduleView studentId={userId} {refreshKey} />
+      <ScheduleView
+        studentId={userId}
+        {refreshKey}
+        bind:dateLabel={scheduleDate}
+        bind:this={schedule}
+      />
     </main>
   </div>
 

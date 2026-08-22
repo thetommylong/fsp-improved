@@ -232,12 +232,12 @@
   min-height: 0;
 }
 
-.schedule-toolbar {
+.header-nav {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 20px;
-  flex-shrink: 0;
+  margin-left: 14px;
+  min-width: 0;
 }
 
 .toolbar-btn {
@@ -275,6 +275,9 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--fsp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .schedule-body {
@@ -326,10 +329,13 @@
 }
 
 .day-headers {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   height: 36px;
+  background: var(--fsp-mantle);
   border-bottom: 1px solid var(--fsp-line);
 }
 
@@ -910,8 +916,24 @@
     box-shadow: none;
   }
 
-  .schedule-toolbar {
-    padding: 10px 12px;
+  .header-nav {
+    margin-left: 8px;
+    gap: 6px;
+  }
+
+  .toolbar-btn {
+    height: 26px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .toolbar-nav {
+    width: 26px;
+  }
+
+  .schedule-date {
+    font-size: 13px;
+    margin-left: 2px;
   }
 
   .time-gutter {
