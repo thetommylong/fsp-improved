@@ -5,7 +5,7 @@ import Fsp from "../ui/Fsp.svelte";
 import fspCss from "../ui/fsp/fsp.css?inline";
 
 const TOKEN_POLL_MS = 250;
-const TOKEN_WAIT_MS = 15_000;
+const TOKEN_WAIT_MS = 60_000;
 
 function waitForValidToken(): Promise<string | null> {
   return new Promise((resolve) => {
@@ -16,11 +16,6 @@ function waitForValidToken(): Promise<string | null> {
       if (payload && !isTokenExpired(payload)) {
         clearInterval(timer);
         resolve(payload.userId as string);
-        return;
-      }
-      if (payload && isTokenExpired(payload)) {
-        clearInterval(timer);
-        resolve(null);
         return;
       }
       if (Date.now() - startedAt > TOKEN_WAIT_MS) {
