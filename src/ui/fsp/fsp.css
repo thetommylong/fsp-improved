@@ -1181,6 +1181,10 @@
   margin-bottom: 14px;
 }
 
+.settings-flavors.trio {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .settings-flavor {
   font-family: "Open Sans", system-ui, sans-serif;
   font-size: 12px;

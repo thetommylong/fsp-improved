@@ -11,6 +11,9 @@ export type FlavorChoice = (typeof FLAVOR_OPTIONS)[number];
 
 const FLAVORS: FlavorName[] = ["latte", "frappe", "macchiato", "mocha"];
 
+export const DARK_FLAVORS = ["frappe", "macchiato", "mocha"] as const;
+export type DarkFlavorChoice = (typeof DARK_FLAVORS)[number];
+
 export const ACCENTS = [
   "rosewater",
   "flamingo",
@@ -31,6 +34,7 @@ export type AccentChoice = (typeof ACCENTS)[number];
 
 const FLAVOR_KEY = "fsp:flavor";
 const ACCENT_KEY = "fsp:accent";
+const SYSTEM_DARK_KEY = "fsp:system-dark";
 
 function storedFlavor(): FlavorChoice {
   const raw = GM_getValue<string>(FLAVOR_KEY, "system");
@@ -46,9 +50,17 @@ function storedAccent(): AccentChoice {
     : "blue";
 }
 
+function storedSystemDark(): DarkFlavorChoice {
+  const raw = GM_getValue<string>(SYSTEM_DARK_KEY, "mocha");
+  return (DARK_FLAVORS as readonly string[]).includes(raw)
+    ? (raw as DarkFlavorChoice)
+    : "mocha";
+}
+
 class ThemeStore {
   flavor = $state<FlavorChoice>(storedFlavor());
   accent = $state<AccentChoice>(storedAccent());
+  systemDark = $state<DarkFlavorChoice>(storedSystemDark());
 
   setFlavor(choice: FlavorChoice): void {
     this.flavor = choice;
@@ -58,6 +70,11 @@ class ThemeStore {
   setAccent(choice: AccentChoice): void {
     this.accent = choice;
     GM_setValue(ACCENT_KEY, choice);
+  }
+
+  setSystemDark(choice: DarkFlavorChoice): void {
+    this.systemDark = choice;
+    GM_setValue(SYSTEM_DARK_KEY, choice);
   }
 }
 
@@ -69,7 +86,7 @@ lightQuery.addEventListener("change", (e) => (systemLight = e.matches));
 
 export function resolvedFlavor(): FlavorName {
   if (theme.flavor !== "system") return theme.flavor;
-  return systemLight ? "latte" : "mocha";
+  return systemLight ? "latte" : theme.systemDark;
 }
 
 export function applyTheme(): void {

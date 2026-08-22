@@ -18,9 +18,9 @@
   import settingsIcon from "../assets/icons/settings.svg?raw";
   import {
     ACCENTS,
+    DARK_FLAVORS,
     FLAVOR_OPTIONS,
     applyTheme,
-    resolvedFlavor,
     theme,
   } from "../theme.svelte";
 
@@ -179,12 +179,30 @@
                   aria-checked={theme.flavor === option}
                   onclick={() => theme.setFlavor(option)}
                 >
-                  {option === "system"
-                    ? `System (${resolvedFlavor()})`
-                    : option[0].toUpperCase() + option.slice(1)}
+                  {option[0].toUpperCase() + option.slice(1)}
                 </button>
               {/each}
             </div>
+            {#if theme.flavor === "system"}
+              <p class="settings-title">Dark flavor</p>
+              <div
+                class="settings-flavors trio"
+                role="radiogroup"
+                aria-label="Dark flavor"
+              >
+                {#each DARK_FLAVORS as dark (dark)}
+                  <button
+                    class="settings-flavor"
+                    class:selected={theme.systemDark === dark}
+                    role="radio"
+                    aria-checked={theme.systemDark === dark}
+                    onclick={() => theme.setSystemDark(dark)}
+                  >
+                    {dark[0].toUpperCase() + dark.slice(1)}
+                  </button>
+                {/each}
+              </div>
+            {/if}
             <p class="settings-title">Accent</p>
             <div class="settings-accents" role="radiogroup" aria-label="Accent color">
               {#each ACCENTS as accent (accent)}
