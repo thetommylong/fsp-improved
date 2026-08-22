@@ -95,48 +95,29 @@
 .content {
   display: flex;
   align-items: stretch;
+  gap: 10px;
   flex: 1;
   min-height: 0;
-  position: relative;
 }
 
 .scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 15;
-  background: rgba(24, 24, 37, 0.55);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.22s ease, visibility 0.22s ease;
-}
-
-.scrim.visible {
-  opacity: 1;
-  visibility: visible;
+  display: none;
 }
 
 .sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: min(300px, 84vw);
+  width: 260px;
+  flex-shrink: 0;
   background: var(--fsp-base);
-  border-radius: 0 16px 16px 0;
+  border-radius: 16px;
   padding: 22px 24px;
-  overflow-y: auto;
-  transform: translateX(0);
-  transition: transform 0.22s ease;
-  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
 }
 
 .sidebar.collapsed {
-  transform: translateX(-105%);
-  box-shadow: none;
+  display: none;
 }
 
 .profile {
@@ -886,6 +867,47 @@
   .main,
   .sidebar {
     border-radius: 0;
+  }
+
+  .content {
+    gap: 0;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: rgba(24, 24, 37, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
+  }
+
+  .scrim.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    display: flex;
+    width: min(300px, 84vw);
+    border-radius: 0 16px 16px 0;
+    overflow-y: auto;
+    transform: translateX(0);
+    transition: transform 0.22s ease;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar.collapsed {
+    display: flex;
+    transform: translateX(-105%);
+    box-shadow: none;
   }
 
   .schedule-toolbar {

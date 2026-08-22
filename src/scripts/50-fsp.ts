@@ -42,12 +42,21 @@ function boot(userId: string) {
 
     document.body.replaceChildren(host);
 
+    window.stop();
+
     const shadow = host.attachShadow({ mode: "open" });
     const style = document.createElement("style");
     style.textContent = fspCss;
     shadow.append(style);
 
     mount(Fsp, { target: shadow, props: { userId } });
+
+    void Promise.allSettled([
+      document.fonts.load('400 16px "Open Sans"'),
+      document.fonts.load('600 16px "Open Sans"'),
+      document.fonts.load('400 16px "Inter"'),
+      document.fonts.load('600 16px "Inter"'),
+    ]);
   };
 
   if (document.body) {

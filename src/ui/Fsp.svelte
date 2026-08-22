@@ -32,7 +32,9 @@
 
   let { userId }: { userId: string } = $props();
 
-  let sidebarOpen = $state(false);
+  let sidebarOpen = $state(
+    !window.matchMedia("(max-width: 768px)").matches,
+  );
   let activeNav = $state("home");
   let name = $state("");
   let rollNumber = $state("");
