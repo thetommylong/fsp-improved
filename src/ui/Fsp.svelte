@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getUserById, getUserImage } from "../api";
   import { notify } from "../notifications";
+  import { svgIcon } from "../svgIcon";
   import ScheduleView from "./fsp/ScheduleView.svelte";
   import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
   import menuIcon from "../assets/icons/menu.svg?raw";
@@ -21,13 +22,13 @@
   }
 
   const navItems: NavItem[] = [
-    { id: "home", label: "Home", icon: homeIcon },
-    { id: "feedback", label: "Feedback", icon: chatIcon },
-    { id: "homeworks", label: "Homeworks", icon: assignmentIcon },
-    { id: "marks", label: "Marks", icon: doneAllIcon },
-    { id: "clubs", label: "Clubs", icon: demographyIcon },
-    { id: "events", label: "Events", icon: eventIcon },
-    { id: "standing", label: "Standing", icon: personShieldIcon },
+    { id: "home", label: "Home", icon: svgIcon(homeIcon) },
+    { id: "feedback", label: "Feedback", icon: svgIcon(chatIcon) },
+    { id: "homeworks", label: "Homeworks", icon: svgIcon(assignmentIcon) },
+    { id: "marks", label: "Marks", icon: svgIcon(doneAllIcon) },
+    { id: "clubs", label: "Clubs", icon: svgIcon(demographyIcon) },
+    { id: "events", label: "Events", icon: svgIcon(eventIcon) },
+    { id: "standing", label: "Standing", icon: svgIcon(personShieldIcon) },
   ];
 
   let { userId }: { userId: string } = $props();
@@ -85,12 +86,12 @@
   <header class="header">
     <div class="header-left">
       <button class="icon-btn" aria-label="Toggle menu" onclick={toggleSidebar}>
-        {@html menuIcon}
+        {@html svgIcon(menuIcon)}
       </button>
     </div>
     <div class="header-right">
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
-        {@html refreshIcon}
+        {@html svgIcon(refreshIcon)}
       </button>
       <button
         class="icon-btn"
@@ -98,7 +99,7 @@
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         onclick={onNotifications}
       >
-        {@html notificationsIcon}
+        {@html svgIcon(notificationsIcon)}
         {#if unreadCount > 0}
           <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
         {/if}
