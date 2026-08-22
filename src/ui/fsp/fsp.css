@@ -403,12 +403,11 @@
 
 .lesson-content > * {
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .lesson-content.compact .lesson-subject {
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .lesson.normal {
@@ -436,8 +435,9 @@
   font-size: 0.85rem;
   line-height: 1.25;
   color: var(--fsp-text);
-  word-break: normal;
-  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lesson-meta {
@@ -867,5 +867,36 @@
 
   .schedule-toolbar {
     padding: 10px 12px;
+  }
+
+  .time-gutter {
+    width: 44px;
+  }
+
+  .time-label {
+    right: 6px;
+    font-size: 9px;
+  }
+
+  .event {
+    left: 6px;
+    right: 6px;
+  }
+
+  .lesson-accent {
+    flex-basis: 4px;
+  }
+
+  .lesson-content {
+    padding: 5px 8px;
+  }
+
+  .popup-backdrop {
+    padding: 12px;
+  }
+
+  .popup {
+    padding: 20px;
+    border-radius: 12px;
   }
 }
