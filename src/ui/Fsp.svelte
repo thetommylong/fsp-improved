@@ -32,7 +32,7 @@
 
   let { userId }: { userId: string } = $props();
 
-  let sidebarOpen = $state(!window.matchMedia("(max-width: 768px)").matches);
+  let sidebarOpen = $state(false);
   let activeNav = $state("home");
   let name = $state("");
   let rollNumber = $state("");
@@ -105,7 +105,18 @@
   </header>
 
   <div class="content">
-    <aside class="sidebar" class:collapsed={!sidebarOpen}>
+    <div
+      class="scrim"
+      class:visible={sidebarOpen}
+      role="presentation"
+      onclick={toggleSidebar}
+    ></div>
+
+    <aside
+      class="sidebar"
+      class:collapsed={!sidebarOpen}
+      aria-hidden={!sidebarOpen}
+    >
       <div class="profile">
         {#if avatar}
           <img class="avatar" src={avatar} alt="" />
