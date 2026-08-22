@@ -3,6 +3,7 @@
   import { notify } from "../notifications";
   import { svgIcon } from "../svgIcon";
   import ScheduleView from "./fsp/ScheduleView.svelte";
+  import MarksView from "./fsp/MarksView.svelte";
   import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
   import menuIcon from "../assets/icons/menu.svg?raw";
   import refreshIcon from "../assets/icons/refresh.svg?raw";
@@ -14,6 +15,14 @@
   import demographyIcon from "../assets/icons/demography.svg?raw";
   import eventIcon from "../assets/icons/event.svg?raw";
   import personShieldIcon from "../assets/icons/person_shield.svg?raw";
+  import settingsIcon from "../assets/icons/settings.svg?raw";
+  import {
+    ACCENTS,
+    FLAVOR_OPTIONS,
+    applyTheme,
+    resolvedFlavor,
+    theme,
+  } from "../theme.svelte";
 
   interface NavItem {
     id: string;
@@ -46,6 +55,38 @@
   let scheduleDate = $state("");
   let schedule: { goTo(delta: number): void; goToday(): void } | undefined =
     $state();
+  let settingsOpen = $state(false);
+  let settingsBtn: HTMLButtonElement | undefined = $state();
+  let settingsPop: HTMLDivElement | undefined = $state();
+
+  $effect(() => {
+    void theme.flavor;
+    void theme.accent;
+    applyTheme();
+  });
+
+  $effect(() => {
+    if (!settingsOpen) return;
+    const rootNode = settingsBtn?.getRootNode();
+    if (!(rootNode instanceof ShadowRoot)) return;
+    function onKeydown(e: Event) {
+      if ((e as KeyboardEvent).key === "Escape") settingsOpen = false;
+    }
+    function onPointerdown(e: Event) {
+      if (!(e.target instanceof Node)) return;
+      const pop = settingsPop;
+      if (pop && pop.contains(e.target)) return;
+      const btn = settingsBtn;
+      if (btn && btn.contains(e.target)) return;
+      settingsOpen = false;
+    }
+    rootNode.addEventListener("keydown", onKeydown);
+    rootNode.addEventListener("pointerdown", onPointerdown);
+    return () => {
+      rootNode.removeEventListener("keydown", onKeydown);
+      rootNode.removeEventListener("pointerdown", onPointerdown);
+    };
+  });
 
   $effect(() => {
     const id = userId;
@@ -77,7 +118,7 @@
 
   function onNav(item: NavItem) {
     if (item.id === activeNav) return;
-    if (item.id !== "home") {
+    if (item.id !== "home" && item.id !== "marks") {
       notify(`${item.label} coming soon`, "info");
       return;
     }
@@ -92,27 +133,76 @@
         {@html svgIcon(menuIcon)}
       </button>
       <div class="header-nav">
-        <button class="toolbar-btn" onclick={() => schedule?.goToday()}>
-          Today
-        </button>
-        <button
-          class="toolbar-btn toolbar-nav"
-          aria-label="Previous"
-          onclick={() => schedule?.goTo(-1)}
-        >
-          ‹
-        </button>
-        <button
-          class="toolbar-btn toolbar-nav"
-          aria-label="Next"
-          onclick={() => schedule?.goTo(1)}
-        >
-          ›
-        </button>
-        <span class="schedule-date">{scheduleDate}</span>
+        {#if activeNav === "home"}
+          <button class="toolbar-btn" onclick={() => schedule?.goToday()}>
+            Today
+          </button>
+          <button
+            class="toolbar-btn toolbar-nav"
+            aria-label="Previous"
+            onclick={() => schedule?.goTo(-1)}
+          >
+            ‹
+          </button>
+          <button
+            class="toolbar-btn toolbar-nav"
+            aria-label="Next"
+            onclick={() => schedule?.goTo(1)}
+          >
+            ›
+          </button>
+          <span class="schedule-date">{scheduleDate}</span>
+        {/if}
       </div>
     </div>
     <div class="header-right">
+      <div class="settings-wrap">
+        <button
+          class="icon-btn"
+          class:active={settingsOpen}
+          bind:this={settingsBtn}
+          aria-label="Appearance settings"
+          aria-expanded={settingsOpen}
+          onclick={() => (settingsOpen = !settingsOpen)}
+        >
+          {@html svgIcon(settingsIcon)}
+        </button>
+        {#if settingsOpen}
+          <div class="settings-pop" bind:this={settingsPop} role="dialog" aria-label="Appearance settings">
+            <p class="settings-title">Theme</p>
+            <div class="settings-flavors" role="radiogroup" aria-label="Flavor">
+              {#each FLAVOR_OPTIONS as option (option)}
+                <button
+                  class="settings-flavor"
+                  class:selected={theme.flavor === option}
+                  role="radio"
+                  aria-checked={theme.flavor === option}
+                  onclick={() => theme.setFlavor(option)}
+                >
+                  {option === "system"
+                    ? `System (${resolvedFlavor()})`
+                    : option[0].toUpperCase() + option.slice(1)}
+                </button>
+              {/each}
+            </div>
+            <p class="settings-title">Accent</p>
+            <div class="settings-accents" role="radiogroup" aria-label="Accent color">
+              {#each ACCENTS as accent (accent)}
+                <button
+                  class="accent-dot"
+                  class:selected={theme.accent === accent}
+                  style={`background: var(--${accent});`}
+                  role="radio"
+                  aria-checked={theme.accent === accent}
+                  aria-label={accent}
+                  title={accent}
+                  onclick={() => theme.setAccent(accent)}
+                ></button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
         {@html svgIcon(refreshIcon)}
       </button>
@@ -168,12 +258,16 @@
     </aside>
 
     <main class="main">
-      <ScheduleView
-        studentId={userId}
-        {refreshKey}
-        bind:dateLabel={scheduleDate}
-        bind:this={schedule}
-      />
+      {#if activeNav === "marks"}
+        <MarksView studentId={userId} />
+      {:else}
+        <ScheduleView
+          studentId={userId}
+          {refreshKey}
+          bind:dateLabel={scheduleDate}
+          bind:this={schedule}
+        />
+      {/if}
     </main>
   </div>
 

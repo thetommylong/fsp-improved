@@ -2,8 +2,15 @@
   import { getSecret, setSecret } from "../secrets";
   import { runAutopilot } from "../scripts/50-edunext";
   import { createLogger } from "../log";
+  import { applyTheme, theme } from "../theme.svelte";
 
   const log = createLogger("EdunextPanel");
+
+  $effect(() => {
+    void theme.flavor;
+    void theme.accent;
+    applyTheme();
+  });
 
   let visible = $state(true);
   let apiKey = $state(getSecret("gemini_api_key") ?? "");

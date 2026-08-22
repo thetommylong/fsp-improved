@@ -1,0 +1,82 @@
+import { flavors, type FlavorName } from "@catppuccin/palette";
+
+export const FLAVOR_OPTIONS = [
+  "system",
+  "latte",
+  "frappe",
+  "macchiato",
+  "mocha",
+] as const;
+export type FlavorChoice = (typeof FLAVOR_OPTIONS)[number];
+
+const FLAVORS: FlavorName[] = ["latte", "frappe", "macchiato", "mocha"];
+
+export const ACCENTS = [
+  "rosewater",
+  "flamingo",
+  "pink",
+  "mauve",
+  "red",
+  "maroon",
+  "peach",
+  "yellow",
+  "green",
+  "teal",
+  "sky",
+  "sapphire",
+  "blue",
+  "lavender",
+] as const;
+export type AccentChoice = (typeof ACCENTS)[number];
+
+const FLAVOR_KEY = "fsp:flavor";
+const ACCENT_KEY = "fsp:accent";
+
+function storedFlavor(): FlavorChoice {
+  const raw = GM_getValue<string>(FLAVOR_KEY, "system");
+  return (FLAVOR_OPTIONS as readonly string[]).includes(raw)
+    ? (raw as FlavorChoice)
+    : "system";
+}
+
+function storedAccent(): AccentChoice {
+  const raw = GM_getValue<string>(ACCENT_KEY, "blue");
+  return (ACCENTS as readonly string[]).includes(raw)
+    ? (raw as AccentChoice)
+    : "blue";
+}
+
+class ThemeStore {
+  flavor = $state<FlavorChoice>(storedFlavor());
+  accent = $state<AccentChoice>(storedAccent());
+
+  setFlavor(choice: FlavorChoice): void {
+    this.flavor = choice;
+    GM_setValue(FLAVOR_KEY, choice);
+  }
+
+  setAccent(choice: AccentChoice): void {
+    this.accent = choice;
+    GM_setValue(ACCENT_KEY, choice);
+  }
+}
+
+export const theme = new ThemeStore();
+
+const lightQuery = window.matchMedia("(prefers-color-scheme: light)");
+let systemLight = $state(lightQuery.matches);
+lightQuery.addEventListener("change", (e) => (systemLight = e.matches));
+
+export function resolvedFlavor(): FlavorName {
+  if (theme.flavor !== "system") return theme.flavor;
+  return systemLight ? "latte" : "mocha";
+}
+
+export function applyTheme(): void {
+  const flavor = flavors[resolvedFlavor()] ?? flavors.mocha;
+  const rootStyle = document.documentElement.style;
+  for (const [name, meta] of flavor.colorEntries) {
+    rootStyle.setProperty(`--${name}`, meta.hex);
+  }
+  rootStyle.setProperty("--accent", flavor.colors[theme.accent].hex);
+}
