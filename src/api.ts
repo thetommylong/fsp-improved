@@ -318,6 +318,30 @@ export function getCampusesByIds(campusIds: string[]): Promise<Campus[]> {
   );
 }
 
+export function getCampus(campusId: string): Promise<Campus> {
+  return gmFetch<Campus>(`${BASE}/identity-management/campuses/${campusId}`);
+}
+
+let eduNextLiteCampusCode: string | null = null;
+
+export async function getEdunextLaunchUrl(
+  eduNextUrl: string,
+): Promise<string> {
+  if (!eduNextLiteCampusCode) {
+    const campusId = localStorage.getItem("CURRENT_CAMPUS_ID");
+    const payload = getTokenPayload();
+    const id = campusId || (payload?.campusId as string | undefined);
+    if (!id) throw new Error("No campus id found");
+    const campus = await getCampus(id);
+    eduNextLiteCampusCode = campus.eduNextLiteCampusCode;
+  }
+  const token = new URLSearchParams({
+    "X-FSC-TOKEN": getToken(),
+    "X-CAMPUS-CODE": eduNextLiteCampusCode,
+  });
+  return `${eduNextUrl}?${token}`;
+}
+
 // --- Club Subjects ---
 
 export function getClubSubjectsByIds(

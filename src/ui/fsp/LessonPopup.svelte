@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Temporal } from "@js-temporal/polyfill";
   import type { ScheduleEntry } from "../../types/fsp";
+  import { getEdunextLaunchUrl } from "../../api";
   import closeIcon from "../../assets/icons/close.svg?raw";
 
   let {
@@ -34,6 +35,17 @@
   function onKeydown(e: KeyboardEvent) {
     if (e.key === "Escape") {
       onclose();
+    }
+  }
+
+  async function onEdunextClick(e: MouseEvent) {
+    if (!entry.eduNextUrl) return;
+    e.preventDefault();
+    try {
+      const url = await getEdunextLaunchUrl(entry.eduNextUrl);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      window.open(entry.eduNextUrl, "_blank", "noopener,noreferrer");
     }
   }
 </script>
@@ -115,6 +127,7 @@
             href={entry.eduNextUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onclick={onEdunextClick}
           >
             Open in Edunext
           </a>
