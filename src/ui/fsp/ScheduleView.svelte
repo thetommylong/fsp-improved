@@ -10,11 +10,9 @@
 
   let {
     studentId,
-    refreshKey = 0,
     dateLabel = $bindable(""),
   }: {
     studentId: string;
-    refreshKey?: number;
     dateLabel?: string;
   } = $props();
 
@@ -84,13 +82,8 @@
     }
   }
 
-  // svelte-ignore state_referenced_locally
-  let lastRefreshKey = refreshKey;
-
   $effect(() => {
-    const force = refreshKey !== lastRefreshKey;
-    lastRefreshKey = refreshKey;
-    void load(selectedDate, force);
+    void load(selectedDate);
   });
 
   $effect(() => {
@@ -211,6 +204,10 @@
 
   export function goToday() {
     selectedDate = Temporal.Now.plainDateISO();
+  }
+
+  export function refresh() {
+    void load(selectedDate, true);
   }
 
   function eventTop(entry: ScheduleEntry): number {

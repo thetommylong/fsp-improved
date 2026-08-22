@@ -24,8 +24,19 @@
     theme,
   } from "../theme.svelte";
 
+  const NAV_IDS = [
+    "home",
+    "feedback",
+    "homeworks",
+    "marks",
+    "clubs",
+    "events",
+    "standing",
+  ] as const;
+  type PageId = (typeof NAV_IDS)[number];
+
   interface NavItem {
-    id: string;
+    id: PageId;
     label: string;
     icon: string;
   }
@@ -45,16 +56,24 @@
   let sidebarOpen = $state(
     !window.matchMedia("(max-width: 768px)").matches,
   );
-  let activeNav = $state("home");
+  let activeNav = $state<PageId>("home");
   let name = $state("");
   let rollNumber = $state("");
   let avatar = $state<string | null>(null);
-  let refreshKey = $state(0);
   let notifOpen = $state(false);
   let unreadCount = $state(0);
   let scheduleDate = $state("");
-  let schedule: { goTo(delta: number): void; goToday(): void } | undefined =
-    $state();
+
+  interface PageRef {
+    refresh(): void;
+  }
+  interface SchedulePageRef extends PageRef {
+    goTo(delta: number): void;
+    goToday(): void;
+  }
+  let pages: Partial<Record<PageId, PageRef>> & {
+    home?: SchedulePageRef;
+  } = {};
   let settingsOpen = $state(false);
   let settingsBtn: HTMLButtonElement | undefined = $state();
   let settingsPop: HTMLDivElement | undefined = $state();
@@ -109,7 +128,7 @@
   }
 
   function refresh() {
-    refreshKey += 1;
+    pages[activeNav]?.refresh();
   }
 
   function onNotifications() {
@@ -134,20 +153,20 @@
       </button>
       <div class="header-nav">
         {#if activeNav === "home"}
-          <button class="toolbar-btn" onclick={() => schedule?.goToday()}>
+          <button class="toolbar-btn" onclick={() => pages.home?.goToday()}>
             Today
           </button>
           <button
             class="toolbar-btn toolbar-nav"
             aria-label="Previous"
-            onclick={() => schedule?.goTo(-1)}
+            onclick={() => pages.home?.goTo(-1)}
           >
             ‹
           </button>
           <button
             class="toolbar-btn toolbar-nav"
             aria-label="Next"
-            onclick={() => schedule?.goTo(1)}
+            onclick={() => pages.home?.goTo(1)}
           >
             ›
           </button>
@@ -277,13 +296,12 @@
 
     <main class="main">
       {#if activeNav === "marks"}
-        <MarksView studentId={userId} />
+        <MarksView studentId={userId} bind:this={pages.marks} />
       {:else}
         <ScheduleView
           studentId={userId}
-          {refreshKey}
           bind:dateLabel={scheduleDate}
-          bind:this={schedule}
+          bind:this={pages.home}
         />
       {/if}
     </main>

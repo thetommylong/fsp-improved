@@ -7,6 +7,12 @@
   } from "../../api";
   import type { MarkCommon, Term } from "../../types/fsp";
   import { notify } from "../../notifications";
+  import {
+    readTermMarks,
+    readTerms,
+    writeTermMarks,
+    writeTerms,
+  } from "../../marksCache";
 
   let { studentId }: { studentId: string } = $props();
 
@@ -115,43 +121,74 @@
     );
   }
 
+  let termPicked = false;
+
   async function init() {
+    const campusId = getTokenPayload()?.campusId as string;
+    const cached = readTerms(campusId);
+    if (cached) {
+      terms = cached.terms;
+      selectedTermId = cached.defaultTermId;
+    }
     try {
-      const campusId = getTokenPayload()?.campusId as string;
       const [list, def] = await Promise.all([
         getTermsByCampus(campusId),
         getDefaultTerm(campusId),
       ]);
       terms = list;
-      selectedTermId = def.termId;
+      writeTerms(campusId, list, def.termId);
+      if (!termPicked && (!selectedTermId || !list.some((t) => t.termId === selectedTermId))) {
+        selectedTermId = def.termId;
+      }
     } catch {
-      notify("Failed to load semesters", "error");
+      if (!cached) notify("Failed to load semesters", "error");
     }
   }
 
   void init();
 
-  async function load(termId: string): Promise<void> {
+  async function load(termId: string, force = false): Promise<void> {
     const term = terms.find((t) => t.termId === termId);
     if (!term) return;
 
-    if (cache.has(termId)) {
-      marks = cache.get(termId)!;
-      return;
+    if (!force) {
+      const mem = cache.get(termId);
+      if (mem) {
+        marks = mem;
+        return;
+      }
+      const stored = readTermMarks(studentId, termId);
+      if (stored) {
+        cache.set(termId, stored.marks);
+        marks = stored.marks;
+        // fall through: revalidate in background
+      }
     }
 
-    loading = true;
-    marks = [];
+    if (!cache.has(termId)) {
+      loading = true;
+    }
     try {
       const year = `${term.academicStartYear}-${term.academicEndYear}`;
       const data = await getMarkCommonByStudent(year, term.termOrder, studentId);
       cache.set(termId, data);
-      marks = data;
+      writeTermMarks(studentId, termId, data);
+      if (selectedTermId === termId) {
+        marks = data;
+      }
     } catch {
-      notify("Failed to load marks", "error");
+      if (!cache.has(termId)) {
+        notify("Failed to load marks", "error");
+      } else if (force) {
+        notify("Couldn't refresh — showing saved marks", "info");
+      }
     } finally {
       loading = false;
     }
+  }
+
+  export function refresh(): void {
+    void load(selectedTermId, true);
   }
 
   $effect(() => {
@@ -162,7 +199,12 @@
 <div class="marks">
   <div class="marks-toolbar">
     <label class="marks-label" for="marks-term">Học kỳ</label>
-    <select id="marks-term" class="marks-select" bind:value={selectedTermId}>
+    <select
+      id="marks-term"
+      class="marks-select"
+      bind:value={selectedTermId}
+      onchange={() => (termPicked = true)}
+    >
       {#each termGroups as group, gi (group.label ?? `main-${gi}`)}
         {#if group.label}
           <optgroup label={group.label}>
