@@ -212,7 +212,11 @@ export function getUnfinishedFeedbacks(
 export function updateFeedbackAnswer(
   payload: FeedbackAnswerUpdate,
 ): Promise<unknown> {
-  return gmFetch(`${BASE}/feedback-service/feedbacks/students/update-answer`, "POST", payload);
+  return gmFetch(
+    `${BASE}/feedback-service/feedbacks/students/update-answer`,
+    "POST",
+    payload,
+  );
 }
 
 export function updateFeedbackComment(
@@ -229,7 +233,11 @@ export function updateFeedbackComment(
 export function updateFeedbackStatus(
   payload: FeedbackStatusUpdate,
 ): Promise<unknown> {
-  return gmFetch(`${BASE}/feedback-service/feedbacks/students/update-status`, "POST", payload);
+  return gmFetch(
+    `${BASE}/feedback-service/feedbacks/students/update-status`,
+    "POST",
+    payload,
+  );
 }
 
 // --- Homeworks ---
@@ -448,6 +456,18 @@ export function getEventImages(
     `${BASE}/student-service/events/images/by-id`,
     "POST",
     eventIds,
+  );
+}
+
+export function toggleEventRegistration(
+  eventId: string,
+  studentId: string,
+  eventData: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  return gmFetch<Record<string, unknown>>(
+    `${BASE}/student-service/events/register/${eventId}/${studentId}`,
+    "PUT",
+    eventData,
   );
 }
 

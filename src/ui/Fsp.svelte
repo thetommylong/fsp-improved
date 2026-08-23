@@ -6,7 +6,7 @@
   import MarksView from "./fsp/MarksView.svelte";
   import FeedbackView from "./fsp/FeedbackView.svelte";
   import HomeworksView from "./fsp/HomeworksView.svelte";
-import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
+  import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
   import menuIcon from "../assets/icons/menu.svg?raw";
   import refreshIcon from "../assets/icons/refresh.svg?raw";
   import notificationsIcon from "../assets/icons/notifications.svg?raw";
@@ -25,6 +25,7 @@ import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
     applyTheme,
     theme,
   } from "../theme.svelte";
+  import EventsView from "./fsp/EventsView.svelte";
 
   const NAV_IDS = [
     "home",
@@ -77,6 +78,7 @@ import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
     home?: SchedulePageRef;
     feedback?: FeedbackView;
     homeworks?: HomeworksView;
+    events?: EventsView;
   } = {};
   let settingsOpen = $state(false);
   let settingsBtn: HTMLButtonElement | undefined = $state();
@@ -141,7 +143,7 @@ import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
 
   function onNav(item: NavItem) {
     if (item.id === activeNav) return;
-    const enabled: string[] = ["home", "feedback", "homeworks", "marks"];
+    const enabled: PageId[] = ["home", "feedback", "homeworks", "marks", "events"];
     if (!enabled.includes(item.id)) {
       notify(`${item.label} coming soon`, "info");
       return;
@@ -302,10 +304,12 @@ import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
 <main class="main">
       {#if activeNav === "homeworks"}
         <HomeworksView studentId={userId} bind:this={pages.homeworks} />
-      {:else if activeNav === "marks"}
-        <MarksView studentId={userId} bind:this={pages.marks} />
       {:else if activeNav === "feedback"}
         <FeedbackView studentId={userId} bind:this={pages.feedback} />
+      {:else if activeNav === "marks"}
+        <MarksView studentId={userId} bind:this={pages.marks} />
+      {:else if activeNav === "events"}
+        <EventsView studentId={userId} bind:this={pages.events} />
       {:else}
         <ScheduleView
           studentId={userId}
