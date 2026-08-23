@@ -40,15 +40,10 @@
   async function load(): Promise<void> {
     loading = true;
     try {
-      if (FAKE) {
-        await new Promise((r) => setTimeout(r, 300));
-        items = FAKE;
-      } else {
-        const payload = getTokenPayload();
-        const campusId = (payload?.campusId || payload?.campusID) as string;
-        const term = await getDefaultTerm(campusId);
-        items = await getStudentHomeWorks(studentId, term.termId);
-      }
+      const payload = getTokenPayload();
+      const campusId = (payload?.campusId || payload?.campusID) as string;
+      const term = await getDefaultTerm(campusId);
+      items = await getStudentHomeWorks(studentId, term.termId);
     } catch {
       notify("Failed to load homeworks", "error");
     } finally {
@@ -59,55 +54,6 @@
   export function refresh(): void {
     void load();
   }
-
-  // TODO(fake): remove before commit
-  const FAKE = [
-    mk("Lập trình hướng đối tượng", "SE1801", "Nguyen Van A", "Lab 3: Kế thừa", true),
-    mk("Cơ sở dữ liệu", "SE1704", "Tran Thi B", "Bài tập ERD tuần 3", false),
-    mk("Toán rời rạc", "SE1042", "Le Van C", "Đồ án nhỏ: Đồ thị", false),
-    mk("Mạng máy tính", "SE1705", "Pham Thi D", "Packet Tracer VLAN", true),
-  ];
-
-  function mk(
-    subjectName: string,
-    className: string,
-    teacherName: string,
-    homeworkTitle: string,
-    isDone: boolean,
-  ): StudentHomeWork {
-    const now = Date.now();
-    return {
-      homeWorkStudentId: crypto.randomUUID(),
-      homeworkId: crypto.randomUUID(),
-      courseId: "",
-      subjectId: "",
-      subjectName,
-      classId: "",
-      className,
-      teacherId: "",
-      teacherName,
-      teacherUsername: "gv.user",
-      homeworkTitle,
-      homeworkContent: "Nộp qua portal trước hạn. Chi tiết xem trong file đính kèm.",
-      fromDateTime: new Date(now - 3 * 864e5).toISOString(),
-      expiredDateTime: new Date(now + (isDone ? 7 : 2) * 864e5).toISOString(),
-      homeworkFiles: ["de-bai.pdf"],
-      studentId,
-      studentName: "Test Student",
-      rollNumber: "FA000001",
-      studentFiles: [],
-      isClosed: false,
-      isDone,
-      completedAt: isDone ? new Date(now - 864e5).toISOString() : "",
-      studentContent: "",
-      studentTitle: "",
-      teacherComment: "",
-      mark: null,
-      campusId: "FAKE",
-    };
-  }
-
-  void load();
 </script>
 
 <div class="homeworks">
