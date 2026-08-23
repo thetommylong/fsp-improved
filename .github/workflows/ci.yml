@@ -1,0 +1,38 @@
+name: CI
+
+# Triggers are commented out: this is a private repo, so every run bills
+# Actions minutes. Run manually from the Actions tab when needed.
+# on:
+#   push:
+#     branches:
+#       - main
+
+on:
+  workflow_dispatch
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build

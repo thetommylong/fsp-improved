@@ -324,9 +324,7 @@ export function getCampus(campusId: string): Promise<Campus> {
 
 let eduNextLiteCampusCode: string | null = null;
 
-export async function getEdunextLaunchUrl(
-  eduNextUrl: string,
-): Promise<string> {
+export async function getEdunextLaunchUrl(eduNextUrl: string): Promise<string> {
   if (!eduNextLiteCampusCode) {
     const campusId = localStorage.getItem("CURRENT_CAMPUS_ID");
     const payload = getTokenPayload();

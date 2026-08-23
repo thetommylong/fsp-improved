@@ -8,10 +8,7 @@ export interface WeekCache {
   entries: ScheduleEntry[];
 }
 
-export function readWeek(
-  studentId: string,
-  weekKey: string,
-): WeekCache | null {
+export function readWeek(studentId: string, weekKey: string): WeekCache | null {
   const raw = GM_getValue<WeekCache | null>(
     `${PREFIX}${studentId}:${weekKey}`,
     null,
