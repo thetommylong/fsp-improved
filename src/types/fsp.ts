@@ -19,11 +19,95 @@ export interface Term {
   logs: unknown;
 }
 
+export interface FeedbackQuestion {
+  feedbackQuestionId: string;
+  content?: string;
+  order?: number;
+}
+
+export interface FeedbackAnswer {
+  feedbackAnswerId: string;
+  content?: string;
+  order?: number;
+}
+
+export interface FeedbackQuestionResponse {
+  feedbackQuestion: FeedbackQuestion;
+  feedbackAnswers?: FeedbackAnswer[];
+}
+
+export interface StudentFeedbackLecturerResult {
+  feedbackLecturerId: string;
+  className: string;
+  lecturerName: string;
+  lecturerUsername: string;
+  subjectName: string;
+  studentId: string;
+  status: boolean;
+  description: string;
+  comment1: string;
+  comment2: string;
+  termId: string;
+  chosenAnswers?: Record<string, string>;
+  questions?: FeedbackQuestionResponse[];
+  templateString?: string | null;
+  html?: string | null;
+}
+
 export interface FeedbackStatus {
-  unDoneFeedbacks: unknown[];
-  feedbacks: unknown[];
+  unDoneFeedbacks: StudentFeedbackLecturerResult[];
+  feedbacks: StudentFeedbackLecturerResult[];
   hasFeedback: boolean;
   hasFavoriteSubjects: boolean;
+}
+
+export interface FeedbackAnswerUpdate {
+  feedbackLecturerId: string;
+  studentId: string;
+  feedbackQuestionId: string;
+  feedbackAnswerId: string;
+}
+
+export interface FeedbackCommentUpdate {
+  feedbackLecturerId: string;
+  studentId: string;
+  comment: string;
+}
+
+export interface FeedbackStatusUpdate {
+  feedbackLecturerId: string;
+  studentId: string;
+  status: boolean;
+}
+
+export interface StudentHomeWork {
+  homeWorkStudentId: string;
+  homeworkId: string;
+  courseId: string;
+  subjectId: string;
+  subjectName: string;
+  classId: string;
+  className: string;
+  teacherId: string;
+  teacherName: string;
+  teacherUsername: string;
+  homeworkTitle: string;
+  homeworkContent: string;
+  fromDateTime: string;
+  expiredDateTime: string;
+  homeworkFiles: string[];
+  studentId: string;
+  studentName: string;
+  rollNumber: string;
+  studentFiles: string[];
+  isClosed: boolean;
+  isDone: boolean;
+  completedAt: string;
+  studentContent: string;
+  studentTitle: string;
+  teacherComment: string;
+  mark: number | null;
+  campusId: string;
 }
 
 export interface Course {

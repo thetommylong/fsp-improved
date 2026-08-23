@@ -4,7 +4,9 @@
   import { svgIcon } from "../svgIcon";
   import ScheduleView from "./fsp/ScheduleView.svelte";
   import MarksView from "./fsp/MarksView.svelte";
-  import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
+  import FeedbackView from "./fsp/FeedbackView.svelte";
+  import HomeworksView from "./fsp/HomeworksView.svelte";
+import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
   import menuIcon from "../assets/icons/menu.svg?raw";
   import refreshIcon from "../assets/icons/refresh.svg?raw";
   import notificationsIcon from "../assets/icons/notifications.svg?raw";
@@ -73,6 +75,8 @@
   }
   let pages: Partial<Record<PageId, PageRef>> & {
     home?: SchedulePageRef;
+    feedback?: FeedbackView;
+    homeworks?: HomeworksView;
   } = {};
   let settingsOpen = $state(false);
   let settingsBtn: HTMLButtonElement | undefined = $state();
@@ -137,7 +141,8 @@
 
   function onNav(item: NavItem) {
     if (item.id === activeNav) return;
-    if (item.id !== "home" && item.id !== "marks") {
+    const enabled: string[] = ["home", "feedback", "homeworks", "marks"];
+    if (!enabled.includes(item.id)) {
       notify(`${item.label} coming soon`, "info");
       return;
     }
@@ -294,9 +299,13 @@
       </nav>
     </aside>
 
-    <main class="main">
-      {#if activeNav === "marks"}
+<main class="main">
+      {#if activeNav === "homeworks"}
+        <HomeworksView studentId={userId} bind:this={pages.homeworks} />
+      {:else if activeNav === "marks"}
         <MarksView studentId={userId} bind:this={pages.marks} />
+      {:else if activeNav === "feedback"}
+        <FeedbackView studentId={userId} bind:this={pages.feedback} />
       {:else}
         <ScheduleView
           studentId={userId}

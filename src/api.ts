@@ -1,7 +1,12 @@
 import type {
   Term,
   FeedbackStatus,
+  FeedbackAnswerUpdate,
+  FeedbackCommentUpdate,
+  FeedbackStatusUpdate,
   Course,
+  StudentFeedbackLecturerResult,
+  StudentHomeWork,
   BlockMarkPeriod,
   MainClass,
   MarkCommon,
@@ -192,6 +197,49 @@ export function getTermsByCampus(campusId: string): Promise<Term[]> {
 export function getFeedbackStatus(studentId: string): Promise<FeedbackStatus> {
   return gmFetch<FeedbackStatus>(
     `${BASE}/feedback-service/feedbacks/students/${studentId}/has-feedback`,
+  );
+}
+
+export function getUnfinishedFeedbacks(
+  termId: string,
+  studentId: string,
+): Promise<StudentFeedbackLecturerResult[]> {
+  return gmFetch(
+    `${BASE}/feedback-service/feedbacks/students/${termId}/${studentId}/un-finished`,
+  );
+}
+
+export function updateFeedbackAnswer(
+  payload: FeedbackAnswerUpdate,
+): Promise<unknown> {
+  return gmFetch(`${BASE}/feedback-service/feedbacks/students/update-answer`, "POST", payload);
+}
+
+export function updateFeedbackComment(
+  slot: 1 | 2,
+  payload: FeedbackCommentUpdate,
+): Promise<unknown> {
+  return gmFetch(
+    `${BASE}/feedback-service/feedbacks/students/update-comment${slot}`,
+    "POST",
+    payload,
+  );
+}
+
+export function updateFeedbackStatus(
+  payload: FeedbackStatusUpdate,
+): Promise<unknown> {
+  return gmFetch(`${BASE}/feedback-service/feedbacks/students/update-status`, "POST", payload);
+}
+
+// --- Homeworks ---
+
+export function getStudentHomeWorks(
+  studentId: string,
+  termId: string,
+): Promise<StudentHomeWork[]> {
+  return gmFetch(
+    `${BASE}/homework-service/home-work-students/${studentId}/${termId}/home-work-student-by-term-id`,
   );
 }
 
