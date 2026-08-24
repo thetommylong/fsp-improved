@@ -36,3 +36,6 @@ console-export-*.log
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+
+# Understand skill artifacts
+/.ua/

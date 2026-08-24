@@ -7,7 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
-    ignores: ['dist/', 'node_modules/', '*.config.*'],
+    ignores: ['dist/', 'node_modules/', '*.config.*', '.ua/'],
   },
   {
     rules: {
