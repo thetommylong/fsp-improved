@@ -13,6 +13,16 @@
     writeTermMarks,
     writeTerms,
   } from "../../marksCache";
+  import {
+    parseScore,
+    getGKValue,
+    getCKValue,
+    semesterAverage,
+    requiredFinal,
+    yearlyAverage,
+  } from "./marksHelpers";
+import { exportGradesToCSV } from "./csvExport";
+import PredictorDrawer from "./PredictorDrawer.svelte";
 
   let { studentId }: { studentId: string } = $props();
 
@@ -28,6 +38,7 @@
   let marks = $state<MarkCommon[]>([]);
   let loading = $state(false);
   let gridWidth = $state(0);
+  let predictorOpen = $state(false);
 
   const cache = new Map<string, MarkCommon[]>();
 
@@ -218,8 +229,24 @@
           {/each}
         {/if}
       {/each}
-    </select>
-  </div>
+</select>
+      <div class="marks-toolbar-actions">
+        <button
+          type="button"
+          class="btn-marks"
+          onclick={() => exportGradesToCSV(marks, selectedTerm?.semesterName)}
+        >
+          Export CSV
+        </button>
+        <button
+          type="button"
+          class="btn-marks"
+          onclick={() => (predictorOpen = true)}
+        >
+          What do I need on my finals?
+        </button>
+      </div>
+    </div>
 
   <div class="marks-body">
     {#if loading}
@@ -306,3 +333,11 @@
     {/if}
   </div>
 </div>
+{#if predictorOpen}
+  <PredictorDrawer 
+    marks={marks} 
+    terms={terms} 
+    selectedTermId={selectedTermId} 
+    onclose={() => { predictorOpen = false }} 
+  />
+{/if}
