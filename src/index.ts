@@ -1,5 +1,14 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
 import { createLogger } from "./log";
 import { site } from "./site";
+
+console.log(
+  `%c fsp-quality-of-life v${__BUILD__.version} (${__BUILD__.commit}) — AGPL-3.0-only`,
+  "color:#cba6f7;font-weight:bold",
+);
+console.log("https://github.com/thetommylong/fsp-improved");
 
 const log = createLogger("index");
 

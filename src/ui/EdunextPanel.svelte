@@ -1,4 +1,7 @@
 <script lang="ts">
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
   import { getSecret, setSecret } from "../secrets";
   import { runAutopilot } from "../scripts/50-edunext";
   import { createLogger } from "../log";
@@ -120,6 +123,21 @@
     <p class="hint" id="hint">
       Press <kbd>Ctrl+Shift+F</kbd> to toggle
     </p>
+
+    <footer class="about">
+      <span class="about-name">fsp-quality-of-life</span>
+      <span class="about-detail">
+        v{__BUILD__.version} · {__BUILD__.commit}
+      </span>
+      <a
+        class="about-link"
+        href="https://github.com/thetommylong/fsp-improved/blob/main/LICENSE"
+        target="_blank"
+        rel="noreferrer"
+      >
+        AGPL-3.0-only
+      </a>
+    </footer>
 
     <div class="sr-only" aria-live="assertive" aria-atomic="true">
       {statusMessage}
@@ -274,5 +292,33 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  .about {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 10px;
+  }
+
+  .about-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--panel-text);
+  }
+
+  .about-detail {
+    font-size: 11px;
+    color: var(--panel-subtext);
+  }
+
+  .about-link {
+    font-size: 11px;
+    color: var(--panel-accent);
+    text-decoration: none;
+  }
+
+  .about-link:hover {
+    text-decoration: underline;
   }
 </style>

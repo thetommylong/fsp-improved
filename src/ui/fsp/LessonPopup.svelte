@@ -1,4 +1,7 @@
 <script lang="ts">
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
   import { Temporal } from "@js-temporal/polyfill";
   import type { ScheduleEntry } from "../../types/fsp";
   import { getEdunextLaunchUrl } from "../../api";

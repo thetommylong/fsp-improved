@@ -1,5 +1,7 @@
 **FSP Improved**
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://github.com/thetommylong/fsp-improved/blob/main/LICENSE)
+
 > *Because the official portal is so broken it felt like a personal insult.*
 
 > [!WARNING]

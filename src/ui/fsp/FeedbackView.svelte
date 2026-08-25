@@ -1,4 +1,7 @@
 <script lang="ts">
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
   import { getFeedbackStatus, getUnfinishedFeedbacks, updateFeedbackAnswer, updateFeedbackComment, updateFeedbackStatus } from "../../api";
   import type {
     StudentFeedbackLecturerResult,

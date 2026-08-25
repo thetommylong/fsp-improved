@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
 export default function () {
   if (unsafeWindow.__devtoolsPatchActive) return;
   unsafeWindow.__devtoolsPatchActive = true;

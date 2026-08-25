@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
 export function svgIcon(raw: string): string {
   return raw
     .replace(/<svg([^>]*)>/, (_, attrs: string) => {

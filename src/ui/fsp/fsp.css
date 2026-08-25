@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-only
+ * Copyright (C) 2026 thetommylong
+ */
+
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Inter:wght@400;600&display=swap");
 
 :host {
@@ -1762,6 +1767,44 @@
 
 .accent-dot.selected {
   border-color: var(--text);
+}
+
+/* ---------- Settings About ---------- */
+
+.settings-sep {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  margin: 12px 0;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.about-name {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.about-detail {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--subtext0);
+}
+
+.about-link {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about-link:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Feedback ---------- */

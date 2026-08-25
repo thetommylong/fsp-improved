@@ -1,4 +1,7 @@
 <script lang="ts">
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
   import type { ScheduleEntry } from "../../types/fsp";
   import dotIcon from "../../assets/icons/dot.svg?raw";
 

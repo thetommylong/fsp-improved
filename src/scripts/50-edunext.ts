@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
 import { mount } from "svelte";
 import EdunextPanel from "../ui/EdunextPanel.svelte";
 import "../styles/catppuccin.css";
@@ -238,6 +241,77 @@ function mountUI() {
 
 export default function () {
   if (site !== "edunext") return;
+
+  const _addEventListener = EventTarget.prototype.addEventListener;
+
+  window.addEventListener(
+    "keydown",
+    (event: KeyboardEvent) => {
+      const isCmdOrCtrl = event.ctrlKey || event.metaKey;
+      const key = event.key.toLowerCase();
+
+      if (
+        event.key === "F12" ||
+        (isCmdOrCtrl && event.shiftKey && ["i", "j", "c"].includes(key)) ||
+        (isCmdOrCtrl && key === "u") ||
+        (isCmdOrCtrl && key === "v")
+      ) {
+        event.stopImmediatePropagation();
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "paste",
+    (event: ClipboardEvent) => {
+      event.stopImmediatePropagation();
+    },
+    true,
+  );
+  EventTarget.prototype.addEventListener = function (
+    type: string,
+    listener: EventListenerOrEventListenerObject | null,
+    options?: boolean | AddEventListenerOptions,
+  ) {
+    if (type === "contextmenu" || type === "keydown") {
+      const safeListener = function (this: EventTarget, event: Event) {
+        if (event instanceof KeyboardEvent) {
+          const isCmdOrCtrl = event.ctrlKey || event.metaKey;
+          const key = event.key.toLowerCase();
+
+          if (
+            event.key === "F12" ||
+            (isCmdOrCtrl &&
+              event.shiftKey &&
+              ["i", "j", "c"].includes(key.toLowerCase())) ||
+            (isCmdOrCtrl && key.toLowerCase() === "u") ||
+            (isCmdOrCtrl && key.toLowerCase() === "v")
+          ) {
+            return;
+          }
+        } else if (type === "contextmenu") {
+          return;
+        }
+
+        if (typeof listener === "function") {
+          return listener.call(this, event);
+        } else if (listener && typeof listener.handleEvent === "function") {
+          return listener.handleEvent.call(listener, event);
+        }
+      };
+
+      return _addEventListener.call(
+        this,
+        type,
+        safeListener as EventListener,
+        options,
+      );
+    }
+
+    return _addEventListener.call(this, type, listener, options);
+  };
+
   if (document.body) {
     mountUI();
   } else {

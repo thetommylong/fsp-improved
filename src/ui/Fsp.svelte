@@ -1,4 +1,7 @@
 <script lang="ts">
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 thetommylong
+
   import { getUserById, getUserImage } from "../api";
   import { notify } from "../notifications";
   import { svgIcon } from "../svgIcon";
@@ -243,6 +246,22 @@
                   onclick={() => theme.setAccent(accent)}
                 ></button>
               {/each}
+            </div>
+            <hr class="settings-sep" />
+            <p class="settings-title">About</p>
+            <div class="about">
+              <span class="about-name">fsp-quality-of-life</span>
+              <span class="about-detail">
+                v{__BUILD__.version} · {__BUILD__.commit}
+              </span>
+              <a
+                class="about-link"
+                href="https://github.com/thetommylong/fsp-improved/blob/main/LICENSE"
+                target="_blank"
+                rel="noreferrer"
+              >
+                AGPL-3.0-only
+              </a>
             </div>
           </div>
         {/if}
