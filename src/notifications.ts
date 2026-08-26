@@ -17,6 +17,8 @@ const COLORS: Record<NotificationType, string> = {
   info: "var(--panel-info)",
 };
 
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 let stack: HTMLDivElement | null = null;
 let escapeHandler: ((e: KeyboardEvent) => void) | null = null;
 
@@ -74,6 +76,7 @@ export function notify(message: string, type: NotificationType = "info") {
     transformOrigin: "left",
     background: COLORS[type],
     opacity: "0.5",
+    transition: REDUCED ? "none" : "transform 0.05s linear",
   });
 
   const icon = document.createElement("span");
@@ -81,10 +84,13 @@ export function notify(message: string, type: NotificationType = "info") {
   icon.textContent = ICONS[type];
   icon.setAttribute("aria-hidden", "true");
   Object.assign(icon.style, {
+    fontFamily: '"Material Symbols Rounded"',
     fontSize: "20px",
     color: COLORS[type],
     lineHeight: "1",
     flexShrink: "0",
+    transition: REDUCED ? "none" : "transform 0.25s ease",
+    transform: "scale(0.6)",
   });
 
   const text = document.createElement("span");
@@ -126,17 +132,31 @@ export function notify(message: string, type: NotificationType = "info") {
     font: "inherit",
     fontSize: "13px",
     lineHeight: "1.4",
-    transform: "translateX(120%)",
-    opacity: "0",
-    transition: "transform 0.3s ease, opacity 0.3s ease",
+    transform: REDUCED ? "translateX(0)" : "translateX(120%)",
+    opacity: REDUCED ? "1" : "0",
+    transition: REDUCED
+      ? "none"
+      : "transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease, box-shadow 0.15s ease, border-color 0.15s ease",
+  });
+
+  toast.addEventListener("mouseenter", () => {
+    toast.style.boxShadow = "0 8px 24px rgba(0,0,0,0.3)";
+    toast.style.borderColor = COLORS[type];
+  });
+  toast.addEventListener("mouseleave", () => {
+    toast.style.boxShadow = "0 4px 16px rgba(0,0,0,0.2)";
+    toast.style.borderColor = "var(--panel-border)";
   });
 
   toast.append(content, bar);
   s.append(toast);
 
   requestAnimationFrame(() => {
-    toast.style.transform = "translateX(0)";
-    toast.style.opacity = "1";
+    requestAnimationFrame(() => {
+      toast.style.transform = "translateX(0)";
+      toast.style.opacity = "1";
+      icon.style.transform = "scale(1)";
+    });
   });
 
   let remaining = DURATION;
@@ -156,16 +176,19 @@ export function notify(message: string, type: NotificationType = "info") {
 
   function dismiss() {
     cancelAnimationFrame(raf);
-    toast.style.transform = "translateX(120%)";
+    toast.style.transform = REDUCED ? "translateX(0)" : "translateX(120%)";
     toast.style.opacity = "0";
-    setTimeout(() => {
-      toast.remove();
-      if (type === "error" && s) {
-        s.removeAttribute("role");
-        s.setAttribute("aria-live", "polite");
-      }
-      removeStackIfNeeded();
-    }, 300);
+    setTimeout(
+      () => {
+        toast.remove();
+        if (type === "error" && s) {
+          s.removeAttribute("role");
+          s.setAttribute("aria-live", "polite");
+        }
+        removeStackIfNeeded();
+      },
+      REDUCED ? 0 : 300,
+    );
   }
 
   toast.addEventListener("click", dismiss);
@@ -178,5 +201,9 @@ export function notify(message: string, type: NotificationType = "info") {
     raf = requestAnimationFrame(tick);
   });
 
-  raf = requestAnimationFrame(tick);
+  if (REDUCED) {
+    setTimeout(dismiss, DURATION);
+  } else {
+    raf = requestAnimationFrame(tick);
+  }
 }

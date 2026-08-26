@@ -58,9 +58,9 @@
     document.head.appendChild(link);
   }
 
-  let sidebarOpen = $state(
-    !window.matchMedia("(max-width: 768px)").matches,
-  );
+  const isMobile = window.matchMedia("(max-width: 768px)");
+
+  let sidebarOpen = $state(!isMobile.matches);
   let activeNav = $state<PageId>("home");
   let name = $state("");
   let rollNumber = $state("");
@@ -68,6 +68,7 @@
   let notifOpen = $state(false);
   let unreadCount = $state(0);
   let scheduleDate = $state("");
+  let lastTrigger = $state<HTMLElement>();
 
   interface PageRef {
     refresh(): void;
@@ -99,7 +100,10 @@
     const rootNode = settingsBtn?.getRootNode();
     if (!(rootNode instanceof ShadowRoot)) return;
     function onKeydown(e: Event) {
-      if ((e as KeyboardEvent).key === "Escape") settingsOpen = false;
+      if ((e as KeyboardEvent).key === "Escape") {
+        settingsOpen = false;
+        restoreFocus();
+      }
     }
     function onPointerdown(e: Event) {
       if (!(e.target instanceof Node)) return;
@@ -108,6 +112,7 @@
       const btn = settingsBtn;
       if (btn && btn.contains(e.target)) return;
       settingsOpen = false;
+      restoreFocus();
     }
     rootNode.addEventListener("keydown", onKeydown);
     rootNode.addEventListener("pointerdown", onPointerdown);
@@ -133,7 +138,16 @@
     });
   });
 
+  function restoreFocus() {
+    requestAnimationFrame(() => lastTrigger?.focus());
+  }
+
   function toggleSidebar() {
+    if (sidebarOpen) {
+      restoreFocus();
+    } else {
+      lastTrigger = document.activeElement as HTMLElement;
+    }
     sidebarOpen = !sidebarOpen;
   }
 
@@ -142,6 +156,11 @@
   }
 
   function onNotifications() {
+    if (notifOpen) {
+      restoreFocus();
+    } else {
+      lastTrigger = document.activeElement as HTMLElement;
+    }
     notifOpen = !notifOpen;
   }
 
@@ -153,6 +172,7 @@
       return;
     }
     activeNav = item.id;
+    if (isMobile.matches) sidebarOpen = false;
   }
 </script>
 
@@ -193,7 +213,14 @@
           bind:this={settingsBtn}
           aria-label="Appearance settings"
           aria-expanded={settingsOpen}
-          onclick={() => (settingsOpen = !settingsOpen)}
+          onclick={() => {
+            if (settingsOpen) {
+              restoreFocus();
+            } else {
+              lastTrigger = document.activeElement as HTMLElement;
+            }
+            settingsOpen = !settingsOpen;
+          }}
         >
           <span class="material-symbols-rounded" aria-hidden="true">settings</span>
         </button>

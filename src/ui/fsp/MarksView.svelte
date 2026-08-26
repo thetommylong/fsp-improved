@@ -42,6 +42,7 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
   let loading = $state(false);
   let gridWidth = $state(0);
   let predictorOpen = $state(false);
+  let lastTrigger = $state<HTMLElement>();
 
   const cache = new Map<string, MarkCommon[]>();
 
@@ -244,7 +245,10 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
         <button
           type="button"
           class="btn-marks"
-          onclick={() => (predictorOpen = true)}
+          onclick={() => {
+            lastTrigger = document.activeElement as HTMLElement;
+            predictorOpen = true;
+          }}
         >
           What do I need on my finals?
         </button>
@@ -337,6 +341,9 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
     marks={marks} 
     terms={terms} 
     selectedTermId={selectedTermId} 
-    onclose={() => { predictorOpen = false }} 
+    onclose={() => {
+      predictorOpen = false;
+      requestAnimationFrame(() => lastTrigger?.focus());
+    }} 
   />
 {/if}

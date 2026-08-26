@@ -82,7 +82,7 @@
   background: transparent;
   cursor: pointer;
   color: var(--text);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .icon-btn:hover {
@@ -122,10 +122,16 @@
   border-radius: 16px;
   padding: 22px 24px;
   overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease, padding 0.22s ease;
 }
 
 .sidebar.collapsed {
-  display: none;
+  width: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .profile {
@@ -358,6 +364,12 @@
   border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   border-radius: 12px;
   padding: 14px 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mark-card:hover {
+  border-color: color-mix(in srgb, var(--text) 14%, transparent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .mark-card-muted {
@@ -397,6 +409,11 @@
   border-radius: 999px;
   padding: 3px 10px;
   white-space: nowrap;
+  transition: transform 0.15s ease;
+}
+
+.avg-badge:hover {
+  transform: scale(1.08);
 }
 
 .avg-badge-cn {
@@ -691,6 +708,15 @@
   text-align: left;
   cursor: pointer;
   appearance: none;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.drawer-row:hover {
+  transform: translateY(-1px);
+}
+
+.drawer-row:active {
+  transform: translateY(0);
 }
 
 .drawer-row:focus-visible {
@@ -1173,6 +1199,16 @@
   font: inherit;
   color: inherit;
   text-align: inherit;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.lesson.clickable:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.lesson.clickable:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .lesson.clickable:focus-visible {
@@ -1473,6 +1509,7 @@
   text-align: left;
   cursor: pointer;
   appearance: none;
+  transition: background 0.12s ease;
 }
 
 .notif-item:last-child {
@@ -1661,6 +1698,10 @@
 
   .sidebar.collapsed {
     display: flex;
+    width: min(300px, 84vw);
+    padding: 22px 24px;
+    opacity: 1;
+    pointer-events: auto;
     transform: translateX(-105%);
     box-shadow: none;
   }
@@ -1776,6 +1817,11 @@
   border-radius: 8px;
   padding: 6px 4px;
   cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.settings-flavor:active {
+  transform: scale(0.95);
 }
 
 .settings-flavor:hover {
@@ -1786,6 +1832,7 @@
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .settings-accents {
@@ -1893,6 +1940,12 @@
   border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   border-radius: 12px;
   padding: 14px 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fb-card:hover {
+  border-color: color-mix(in srgb, var(--text) 14%, transparent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .fb-card-wrapper {
@@ -2216,6 +2269,11 @@
   text-align: left;
   cursor: pointer;
   appearance: none;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.mark-card-inner:active {
+  transform: scale(0.99);
 }
 
 .mark-card-inner:focus-visible {
@@ -2248,4 +2306,100 @@
 .avg-badge-overdue {
   color: var(--red);
   background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.sidebar .nav-item {
+  transition: background 0.12s ease;
+}
+
+.badge {
+  transition: transform 0.15s ease;
+}
+
+.badge:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+.notif-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── modal / dialog animations ───────────────────────────────── */
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+@keyframes notif-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+.drawer-backdrop {
+  animation: backdrop-in 0.18s ease-out both;
+}
+
+.popup-backdrop {
+  animation: backdrop-in 0.2s ease-out both;
+}
+
+.popup {
+  animation: popup-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.notif-panel {
+  animation: notif-in 0.2s ease-out both;
+}
+
+.settings-pop {
+  animation: pop-in 0.15s ease-out both;
+}
+
+.fb-dialog[open] {
+  animation: dialog-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fb-dialog::backdrop {
+  animation: backdrop-in 0.2s ease-out both;
+}
+
+/* ── reduced motion ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -18,6 +18,14 @@
 
   const isEdunext = $derived(Boolean(entry.eduNextUrl));
 
+  const lessonLabel = $derived.by(() => {
+    const start = new Date(entry.startDateTime);
+    const end = new Date(entry.endDateTime);
+    const fmt = (d: Date) =>
+      d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    return `${entry.subjectName} at ${fmt(start)}–${fmt(end)} taught by ${entry.lecturerName} in ${entry.roomNo}`;
+  });
+
   let metaEl = $state<HTMLDivElement>();
   let contentEl = $state<HTMLDivElement>();
   let mode = $state<"row" | "stack">("row");
@@ -88,7 +96,7 @@
   type="button"
   class="lesson clickable"
   class:edunext={isEdunext}
-  aria-label={`${entry.subjectName} - open details`}
+  aria-label={lessonLabel}
   onclick={open}
   onkeydown={onKeydown}
 >

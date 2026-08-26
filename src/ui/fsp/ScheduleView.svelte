@@ -106,6 +106,7 @@
 
   let selectedEntry = $state<ScheduleEntry | null>(null);
   let checkingId = $state<string | null>(null);
+  let lastTrigger = $state<HTMLElement>();
 
   async function checkEntry(id: string): Promise<void> {
     const [monday] = getWeek(selectedDate);
@@ -129,8 +130,14 @@
   }
 
   function openEntry(entry: ScheduleEntry) {
+    lastTrigger = document.activeElement as HTMLElement;
     selectedEntry = entry;
     void checkEntry(entry.id);
+  }
+
+  function closeEntry() {
+    selectedEntry = null;
+    requestAnimationFrame(() => lastTrigger?.focus());
   }
 
   const range = $derived.by(() => {
@@ -287,6 +294,7 @@
           {#each hours as hour (hour)}
             <span
               class="time-label"
+              aria-hidden="true"
               style="top: {DAY_HEADER_H + ((hour * 60 - range.startMin) / 60) * HOUR_PX}px"
             >
               {formatHour(hour)}
@@ -299,6 +307,7 @@
             {#each weekDays as day (day.toString())}
               <div
                 class="day-header"
+                aria-hidden="true"
                 class:today={day.toString() === todayIso}
               >
                 <span class="day-header-name">{dayHeaderLabel(day)}</span>
@@ -333,6 +342,7 @@
                 {#if day.toString() === todayIso && nowMinutes >= range.startMin && nowMinutes <= range.endMin}
                   <div
                     class="now-line"
+                    aria-hidden="true"
                     style="top: {((nowMinutes - range.startMin) / 60) * HOUR_PX}px"
                   >
                   </div>
@@ -348,6 +358,7 @@
           {#each hours as hour (hour)}
             <span
               class="time-label"
+              aria-hidden="true"
               style="top: {((hour * 60 - range.startMin) / 60) * HOUR_PX}px"
             >
               {formatHour(hour)}
@@ -374,6 +385,7 @@
           {#if isToday && nowMinutes >= range.startMin && nowMinutes <= range.endMin}
             <div
               class="now-line"
+              aria-hidden="true"
               style="top: {((nowMinutes - range.startMin) / 60) * HOUR_PX}px"
             >
             </div>
@@ -392,6 +404,6 @@
   <LessonPopup
     entry={selectedEntry}
     checking={checkingId === selectedEntry.id}
-    onclose={() => (selectedEntry = null)}
+    onclose={closeEntry}
   />
 {/if}

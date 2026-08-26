@@ -28,6 +28,7 @@
   let submitting = $state(false);
 
   let dialogEl = $state<HTMLDialogElement>();
+  let lastTrigger = $state<HTMLElement>();
 
   $effect(() => {
     const el = dialogEl;
@@ -73,6 +74,7 @@
   void load();
 
   async function openForm(row: StudentFeedbackLecturerResult): Promise<void> {
+    lastTrigger = document.activeElement as HTMLElement;
     active = row;
     try {
       if (row.termId === "FAKE") {
@@ -132,6 +134,7 @@
       await updateFeedbackStatus({ feedbackLecturerId: formRow.feedbackLecturerId, studentId: studentId ?? "", status: true });
       notify("Phản hồi đã gửi", "success");
       discardForm();
+      requestAnimationFrame(() => lastTrigger?.focus());
       await load();
     } catch {
       notify("Gửi phản hồi thất bại", "error");
@@ -142,6 +145,7 @@
 
   function closeForm(): void {
     discardForm();
+    requestAnimationFrame(() => lastTrigger?.focus());
     void load();
   }
 
