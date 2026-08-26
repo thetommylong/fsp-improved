@@ -54,17 +54,21 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<div class="popup-backdrop" role="presentation" onclick={onclose}>
+<div
+  class="popup-backdrop"
+  role="presentation"
+  onclick={onclose}
+  onkeydown={(e) => { if (e.key === "Escape") onclose(); }}
+>
   <div
     class="popup"
     role="dialog"
-    aria-modal="true"
+    aria-modal="false"
     aria-label={entry.subjectName}
     tabindex="-1"
     bind:this={dialogEl}
     onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.stopPropagation()}
   >
     <div class="popup-header">
       <div class="popup-title">
@@ -78,7 +82,7 @@
           aria-label="Close"
           onclick={onclose}
         >
-          <span class="material-symbols-rounded">close</span>
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
         </button>
         <p class="popup-date">{dateLabel}</p>
       </div>

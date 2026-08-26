@@ -73,8 +73,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  min-width: 32px;
+  min-height: 32px;
+  width: 32px;
+  height: 32px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -683,6 +685,17 @@
   background: var(--surface0);
   border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
   border-radius: 12px;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.drawer-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .drawer-row-head {
@@ -1154,6 +1167,12 @@
 
 .lesson.clickable {
   cursor: pointer;
+  appearance: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
 }
 
 .lesson.clickable:focus-visible {
@@ -1444,8 +1463,16 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  width: 100%;
   padding: 10px 16px;
+  border: none;
   border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
 }
 
 .notif-item:last-child {
@@ -1868,6 +1895,25 @@
   padding: 14px 16px;
 }
 
+.fb-card-wrapper {
+  list-style: none;
+}
+
+.fb-card-button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: inherit;
+  appearance: none;
+}
+
+.fb-card-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .fb-card-muted {
   opacity: 0.75;
 }
@@ -2151,6 +2197,31 @@
 .fb-card-clickable {
   cursor: pointer;
   transition: border-color 0.15s;
+}
+
+.list-item-plain {
+  list-style: none;
+}
+
+.mark-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.mark-card-inner:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 12px;
 }
 
 .fb-card-clickable:hover {

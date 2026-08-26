@@ -161,14 +161,14 @@
     {:else}
       <div
         class="marks-grid"
-        role="list"
+        role="group"
         aria-label="Clubs"
         bind:clientWidth={gridWidth}
       >
         {#each columns as col, ci (ci)}
           <div class="marks-col">
             {#each col as club (club.clubId)}
-              <article class="mark-card" role="listitem">
+              <article class="mark-card">
                 <header class="mark-card-head">
                   <h3 class="mark-card-title">{club.clubName}</h3>
                 </header>

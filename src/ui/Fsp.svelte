@@ -160,7 +160,7 @@
   <header class="header">
     <div class="header-left">
       <button class="icon-btn" aria-label="Toggle menu" onclick={toggleSidebar}>
-        <span class="material-symbols-rounded">menu</span>
+        <span class="material-symbols-rounded" aria-hidden="true">menu</span>
       </button>
       <div class="header-nav">
         {#if activeNav === "home"}
@@ -195,7 +195,7 @@
           aria-expanded={settingsOpen}
           onclick={() => (settingsOpen = !settingsOpen)}
         >
-          <span class="material-symbols-rounded">settings</span>
+          <span class="material-symbols-rounded" aria-hidden="true">settings</span>
         </button>
         {#if settingsOpen}
           <div class="settings-pop" bind:this={settingsPop} role="dialog" aria-label="Appearance settings">
@@ -268,7 +268,7 @@
         {/if}
       </div>
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
-        <span class="material-symbols-rounded">refresh</span>
+        <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
       </button>
       <button
         class="icon-btn"
@@ -276,7 +276,7 @@
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         onclick={onNotifications}
       >
-        <span class="material-symbols-rounded">notifications</span>
+        <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
         {#if unreadCount > 0}
           <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
         {/if}
@@ -289,17 +289,20 @@
       class="scrim"
       class:visible={sidebarOpen}
       role="presentation"
+      aria-hidden={!sidebarOpen}
       onclick={toggleSidebar}
+      onkeydown={(e) => { if (e.key === "Escape" && sidebarOpen) toggleSidebar(); }}
     ></div>
 
     <aside
       class="sidebar"
       class:collapsed={!sidebarOpen}
       aria-hidden={!sidebarOpen}
+      inert={!sidebarOpen}
     >
       <div class="profile">
         {#if avatar}
-          <img class="avatar" src={avatar} alt="" />
+          <img class="avatar" src={avatar} alt="{name || 'User'} avatar" />
         {:else}
           <div class="avatar"></div>
         {/if}
@@ -312,9 +315,10 @@
           <button
             class="nav-item"
             class:active={activeNav === item.id}
+            aria-current={activeNav === item.id ? "page" : undefined}
             onclick={() => onNav(item)}
           >
-            <span class="nav-icon material-symbols-rounded">{item.icon}</span>
+            <span class="nav-icon material-symbols-rounded" aria-hidden="true">{item.icon}</span>
             <span>{item.label}</span>
           </button>
         {/each}

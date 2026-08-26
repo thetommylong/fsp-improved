@@ -62,6 +62,16 @@
     }
   }
 
+  function onDragKeydown(e: KeyboardEvent) {
+    if (!visible) return;
+    const step = e.shiftKey ? 50 : 16;
+    if (e.key === "ArrowLeft") { e.preventDefault(); dragOffsetX -= step; }
+    else if (e.key === "ArrowRight") { e.preventDefault(); dragOffsetX += step; }
+    else if (e.key === "ArrowUp") { e.preventDefault(); dragOffsetY -= step; }
+    else if (e.key === "ArrowDown") { e.preventDefault(); dragOffsetY += step; }
+    else if (e.key === "Home") { e.preventDefault(); dragOffsetX = 0; dragOffsetY = 0; }
+  }
+
   function startDrag(e: PointerEvent) {
     if (e.button !== 0) return;
     dragging = true;
@@ -95,11 +105,13 @@
   <div
     class="header"
     class:dragging
-    role="group"
-    aria-label="Drag to move panel"
+    role="toolbar"
+    aria-label="Panel position (Arrow keys, Home to reset)"
+    tabindex="0"
     onpointerdown={startDrag}
     onpointermove={onDrag}
     onpointerup={stopDrag}
+    onkeydown={onDragKeydown}
   >
     <span class="title">Edunext Autopilot</span>
   </div>
@@ -139,7 +151,7 @@
       </a>
     </footer>
 
-    <div class="sr-only" aria-live="assertive" aria-atomic="true">
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
       {statusMessage}
     </div>
   </div>

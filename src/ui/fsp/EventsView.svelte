@@ -68,7 +68,7 @@
 </script>
 
 {#snippet eventCard(ev: EventStudent)}
-  <article class="fb-card" class:fb-card-muted={!ev.event.hasAttendance} role="listitem">
+  <article class="fb-card" class:fb-card-muted={!ev.event.hasAttendance}>
     <header class="fb-card-head">
       <div class="fb-card-titlewrap">
         <h3 class="fb-card-title">{ev.event.eventNameEnglish}</h3>
@@ -130,7 +130,7 @@
     {:else}
       {#if pending.length > 0}
         <h2 class="feedback-group-title" id="ev-pending">Chưa tham gia ({pending.length})</h2>
-        <div class="events-grid" role="list" aria-labelledby="ev-pending">
+        <div class="events-grid" role="group" aria-labelledby="ev-pending">
           {#each columnsOf(pending) as col, ci (ci)}
             <div class="events-col">
               {#each col as ev (ev.event.eventId)}

@@ -161,14 +161,12 @@
         <h2 class="feedback-group-title" id="fb-pending">Chưa gửi ({pending.length})</h2>
         <ul class="feedback-list" aria-labelledby="fb-pending">
           {#each sortedPending as f (f.feedbackLecturerId)}
-            <li
-              class="fb-card item-hover fb-card-muted"
-              onclick={() => openForm(f)}
-              role="button"
-              tabindex="0"
-              onkeydown={($event) => $event.key === "Enter" && openForm(f)}
-              aria-label={`Phản hồi cho ${f.subjectName} (Chưa gửi)`}
-            >
+            <li class="fb-card-wrapper">
+              <button
+                class="fb-card fb-card-muted fb-card-button"
+                onclick={() => openForm(f)}
+                aria-label={`Phản hồi cho ${f.subjectName} (Chưa gửi)`}
+              >
               <header class="fb-card-head">
                 <div class="fb-card-titlewrap">
                   <h3 class="fb-card-title">{f.subjectName}</h3>
@@ -180,6 +178,7 @@
                 <span class="mark-label">GV</span>
                 <span class="fb-text">{f.lecturerName || "—"}</span>
               </section>
+              </button>
             </li>
           {/each}
         </ul>

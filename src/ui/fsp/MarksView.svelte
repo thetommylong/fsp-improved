@@ -257,24 +257,20 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
     {:else if marks.length === 0}
       <p class="marks-empty">No marks recorded for this semester yet</p>
     {:else}
-      <div class="marks-grid" role="list" aria-label="Bảng điểm theo môn học" bind:clientWidth={gridWidth}>
+      <div class="marks-grid" role="group" aria-label="Bảng điểm theo môn học" bind:clientWidth={gridWidth}>
         {#each columns as col, ci (ci)}
           <div class="marks-col">
             {#each col as m (m.courseId)}
               {@const g = classify(m)}
-              <article class="mark-card" role="listitem" class:mark-card-muted={!hasGrades(g, m)}>
+              <article class="mark-card" class:mark-card-muted={!hasGrades(g, m)}>
             <header class="mark-card-head">
               <h3 class="mark-card-title">{m.subjectName}</h3>
               <div class="mark-card-avgs">
                 {#if m.averageMark}
-                  <span class="avg-badge" title="Điểm trung bình học kỳ"
-                    >TB {m.averageMark}</span
-                  >
+                  <span class="avg-badge" aria-label="TB {m.averageMark}">TB {m.averageMark}</span>
                 {/if}
                 {#if m.averageMarkCN}
-                  <span class="avg-badge avg-badge-cn" title="Điểm trung bình cả năm"
-                    >CN {m.averageMarkCN}</span
-                  >
+                  <span class="avg-badge avg-badge-cn" aria-label="CN {m.averageMarkCN}">CN {m.averageMarkCN}</span>
                 {/if}
               </div>
             </header>

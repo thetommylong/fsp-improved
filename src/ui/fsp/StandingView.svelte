@@ -165,20 +165,21 @@
 {#snippet card(item: StandingItem)}
   {@const id = item.kind + "-" + item.date + "-" + item.title}
   {@const isExpanded = expandedId === id}
-  <article
-    class="mark-card fb-card-clickable"
+  <li class="mark-card fb-card-clickable list-item-plain"
     class:fb-card-expanded={isExpanded}
-    role="listitem"
-    tabindex="0"
-    aria-expanded={isExpanded}
-    onclick={() => toggle(id)}
-    onkeydown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggle(id);
-      }
-    }}
   >
+    <button
+      type="button"
+      class="mark-card-inner"
+      aria-expanded={isExpanded}
+      onclick={() => toggle(id)}
+      onkeydown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle(id);
+        }
+      }}
+    >
     <header class="mark-card-head">
       <h3 class="mark-card-title">{item.title}</h3>
       <div class="mark-card-avgs">
@@ -246,5 +247,6 @@
         {/if}
       </div>
     {/if}
-  </article>
+    </button>
+  </li>
 {/snippet}

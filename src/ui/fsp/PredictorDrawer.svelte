@@ -26,6 +26,8 @@
     onclose: () => void;
   } = $props();
 
+  let drawerEl = $state<HTMLDivElement>();
+
   let target = $state(8);
   let projections = $state<Record<string, number>>({});
   let siblingLoading = $state(false);
@@ -215,14 +217,20 @@
     }
     projections = newProjs;
   });
+
+  $effect(() => {
+    if (!detailSubject && drawerEl) drawerEl.focus();
+  });
 </script>
 
 <div class="drawer-backdrop" role="presentation" onclick={onclose}>
   <div
     class="drawer"
     role="dialog"
-    aria-modal="true"
+    aria-modal="false"
     aria-label="Final Grade Predictor"
+    tabindex="-1"
+    bind:this={drawerEl}
   >
     <div class="drawer-header">
       <h2 class="drawer-title">Final Grade Predictor</h2>
@@ -239,7 +247,8 @@
     <div class="drawer-body">
       {#if detailSubject}
         <!-- Detail View -->
-        <div class="detail-view" onclick={(e) => e.stopPropagation()}>
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <section class="detail-view" role="group" aria-label="Grade detail" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
           <div class="detail-header">
             <button
               type="button"
@@ -357,7 +366,8 @@
             </table>
           </div>
 
-          <div class="detail-results" onclick={(e) => e.stopPropagation()}>
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <section class="detail-results" role="group" aria-label="Results" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
             <div class="detail-result">
               <span class="detail-result-label">TB (Semester Avg)</span>
               <span class="detail-result-value">{detailTB}</span>
@@ -371,6 +381,7 @@
                 step="0.1"
                 bind:value={detailTarget}
                 class="detail-input"
+                aria-label="Target average"
                 placeholder="e.g. 8.0"
               />
             </div>
@@ -394,18 +405,19 @@
                 </span>
               </div>
             {/if}
-          </div>
-        </div>
+          </section>
+        </section>
       {:else}
         <!-- List View -->
         <div class="drawer-section">
-          <p class="drawer-instruction">Target average:</p>
+          <label class="drawer-instruction" for="pred-target">Target average:</label>
           <div class="drawer-presets">
             <button type="button" class="drawer-preset-btn" onclick={() => (target = 8)}>8.0</button>
             <button type="button" class="drawer-preset-btn" onclick={() => (target = 9)}>9.0</button>
             <button type="button" class="drawer-preset-btn" onclick={() => (target = 9.5)}>9.5</button>
           </div>
           <input
+            id="pred-target"
             type="number"
             min="0"
             max="10"
@@ -428,17 +440,13 @@
 
         <div class="drawer-subjects">
           {#each predRows as row (row.courseId)}
-            <div
+            <button
+              type="button"
               class="drawer-row"
-              role="listitem"
               onclick={(e) => {
                 e.stopPropagation();
                 openDetail(marks.find(m => m.courseId === row.courseId)!);
               }}
-              tabindex="0"
-              onkeydown={(e) =>
-                e.key === "Enter" && openDetail(marks.find(m => m.courseId === row.courseId)!)
-              }
             >
               <div class="drawer-row-head">
                 <span class="drawer-subject-name">{row.subjectName}</span>
@@ -447,10 +455,6 @@
 
               <div class="drawer-projection">
                 {#if row.ck === null}
-                  <label
-                    class="drawer-slider-label"
-                    onclick={(e) => e.stopPropagation()}
-                  >
                     <input
                       type="range"
                       min="0"
@@ -460,8 +464,7 @@
                       class="drawer-slider"
                       aria-label="Projected Cuối Kỳ for {row.subjectName}"
                     />
-                  </label>
-                  <span class="drawer-ck-value">CK {row.proj.toFixed(2)}</span>
+                   <span class="drawer-ck-value">CK {row.proj.toFixed(2)}</span>
                   <span class="drawer-tb-badge">TB {row.tb}</span>
                   {#if siblingMarks.length > 0}
                     <span class="drawer-cn-badge">CN {row.cn}</span>
@@ -481,7 +484,7 @@
                   </span>
                 {/if}
               </div>
-            </div>
+            </button>
           {/each}
         </div>
       {/if}

@@ -105,9 +105,12 @@
 </script>
 
 {#if open}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <div class="notif-backdrop" role="presentation" onclick={onclose}>
+  <div
+    class="notif-backdrop"
+    role="presentation"
+    onclick={onclose}
+    onkeydown={(e) => { if (e.key === "Escape") onclose(); }}
+  >
     <div
       class="notif-panel"
       role="dialog"
@@ -115,6 +118,7 @@
       aria-label="Notifications"
       tabindex="-1"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
     >
       <div class="notif-header">
         <span class="notif-title">Notifications</span>
@@ -127,7 +131,7 @@
           aria-label="Close"
           onclick={onclose}
         >
-          <span class="material-symbols-rounded">close</span>
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
         </button>
       </div>
 
@@ -140,20 +144,14 @@
           <p class="notif-status">No notifications</p>
         {:else if result}
           {#each result.notifications as n (n.notificationId)}
-            <div
+            <button
+              type="button"
               class="notif-item"
               class:unread={!n.isRead}
               class:clickable={!n.isRead}
-              role="button"
-              tabindex={n.isRead ? -1 : 0}
+              disabled={n.isRead}
               aria-label={n.isRead ? n.title : `Mark as read: ${n.title}`}
               onclick={() => markRead(n)}
-              onkeydown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  markRead(n);
-                }
-              }}
             >
               <div class="notif-item-top">
                 {#if typeCode(n)}
@@ -161,12 +159,12 @@
                 {/if}
                 <span class="notif-time">{relTime(n.createdDate)}</span>
                 {#if !n.isRead}
-                  <span class="notif-dot" aria-label="unread"></span>
+                  <span class="notif-dot" aria-hidden="true"></span>
                 {/if}
               </div>
               <p class="notif-item-title">{n.title}</p>
               <p class="notif-item-content">{n.content}</p>
-            </div>
+            </button>
           {/each}
         {/if}
       </div>

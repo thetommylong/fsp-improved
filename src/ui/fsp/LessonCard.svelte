@@ -84,14 +84,13 @@
   </div>
 {/snippet}
 
-<div
+<button
+  type="button"
   class="lesson clickable"
   class:edunext={isEdunext}
-  role="button"
-  tabindex={0}
   aria-label={`${entry.subjectName} - open details`}
   onclick={open}
   onkeydown={onKeydown}
 >
   {@render LessonBody({ entry })}
-</div>
+</button>
