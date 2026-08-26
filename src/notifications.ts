@@ -77,7 +77,7 @@ export function notify(message: string, type: NotificationType = "info") {
   });
 
   const icon = document.createElement("span");
-  icon.className = "material-symbols-outlined";
+  icon.className = "material-symbols-rounded";
   icon.textContent = ICONS[type];
   icon.setAttribute("aria-hidden", "true");
   Object.assign(icon.style, {

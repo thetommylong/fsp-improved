@@ -3,7 +3,6 @@
 // Copyright (C) 2026 thetommylong
 
   import type { ScheduleEntry } from "../../types/fsp";
-  import dotIcon from "../../assets/icons/dot.svg?raw";
 
   let {
     entry,
@@ -78,7 +77,7 @@
     >
       <span class="lesson-room">{entry.roomNo}</span>
       {#if mode === "row"}
-        <span class="dot">{@html dotIcon}</span>
+        <span class="dot"></span>
       {/if}
       <span class="lesson-lecturer">{entry.lecturerName}</span>
     </div>

@@ -5,7 +5,6 @@
   import { Temporal } from "@js-temporal/polyfill";
   import type { ScheduleEntry } from "../../types/fsp";
   import { getEdunextLaunchUrl } from "../../api";
-  import closeIcon from "../../assets/icons/close.svg?raw";
 
   let {
     entry,
@@ -79,7 +78,7 @@
           aria-label="Close"
           onclick={onclose}
         >
-          {@html closeIcon}
+          <span class="material-symbols-rounded">close</span>
         </button>
         <p class="popup-date">{dateLabel}</p>
       </div>

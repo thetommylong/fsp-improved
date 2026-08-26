@@ -4,23 +4,11 @@
 
   import { getUserById, getUserImage } from "../api";
   import { notify } from "../notifications";
-  import { svgIcon } from "../svgIcon";
   import ScheduleView from "./fsp/ScheduleView.svelte";
   import MarksView from "./fsp/MarksView.svelte";
   import FeedbackView from "./fsp/FeedbackView.svelte";
   import HomeworksView from "./fsp/HomeworksView.svelte";
   import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
-  import menuIcon from "../assets/icons/menu.svg?raw";
-  import refreshIcon from "../assets/icons/refresh.svg?raw";
-  import notificationsIcon from "../assets/icons/notifications.svg?raw";
-  import homeIcon from "../assets/icons/home.svg?raw";
-  import chatIcon from "../assets/icons/chat.svg?raw";
-  import assignmentIcon from "../assets/icons/assignment.svg?raw";
-  import doneAllIcon from "../assets/icons/done_all.svg?raw";
-  import demographyIcon from "../assets/icons/demography.svg?raw";
-  import eventIcon from "../assets/icons/event.svg?raw";
-  import personShieldIcon from "../assets/icons/person_shield.svg?raw";
-  import settingsIcon from "../assets/icons/settings.svg?raw";
   import {
     ACCENTS,
     DARK_FLAVORS,
@@ -29,6 +17,8 @@
     theme,
   } from "../theme.svelte";
   import EventsView from "./fsp/EventsView.svelte";
+  import StandingView from "./fsp/StandingView.svelte";
+  import ClubsView from "./fsp/ClubsView.svelte";
 
   const NAV_IDS = [
     "home",
@@ -48,16 +38,25 @@
   }
 
   const navItems: NavItem[] = [
-    { id: "home", label: "Home", icon: svgIcon(homeIcon) },
-    { id: "feedback", label: "Feedback", icon: svgIcon(chatIcon) },
-    { id: "homeworks", label: "Homeworks", icon: svgIcon(assignmentIcon) },
-    { id: "marks", label: "Marks", icon: svgIcon(doneAllIcon) },
-    { id: "clubs", label: "Clubs", icon: svgIcon(demographyIcon) },
-    { id: "events", label: "Events", icon: svgIcon(eventIcon) },
-    { id: "standing", label: "Standing", icon: svgIcon(personShieldIcon) },
+    { id: "home", label: "Home", icon: "home" },
+    { id: "feedback", label: "Feedback", icon: "chat" },
+    { id: "homeworks", label: "Homeworks", icon: "assignment" },
+    { id: "marks", label: "Marks", icon: "done_all" },
+    { id: "clubs", label: "Clubs", icon: "group" },
+    { id: "events", label: "Events", icon: "event" },
+    { id: "standing", label: "Standing", icon: "shield_person" },
   ];
 
   let { userId }: { userId: string } = $props();
+
+  const FONT_URL =
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap";
+  if (!document.querySelector(`link[href="${FONT_URL}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = FONT_URL;
+    document.head.appendChild(link);
+  }
 
   let sidebarOpen = $state(
     !window.matchMedia("(max-width: 768px)").matches,
@@ -82,6 +81,8 @@
     feedback?: FeedbackView;
     homeworks?: HomeworksView;
     events?: EventsView;
+    standing?: StandingView;
+    clubs?: ClubsView;
   } = {};
   let settingsOpen = $state(false);
   let settingsBtn: HTMLButtonElement | undefined = $state();
@@ -146,7 +147,7 @@
 
   function onNav(item: NavItem) {
     if (item.id === activeNav) return;
-    const enabled: PageId[] = ["home", "feedback", "homeworks", "marks", "events"];
+    const enabled: PageId[] = ["home", "feedback", "homeworks", "marks", "clubs", "events", "standing"];
     if (!enabled.includes(item.id)) {
       notify(`${item.label} coming soon`, "info");
       return;
@@ -159,7 +160,7 @@
   <header class="header">
     <div class="header-left">
       <button class="icon-btn" aria-label="Toggle menu" onclick={toggleSidebar}>
-        {@html svgIcon(menuIcon)}
+        <span class="material-symbols-rounded">menu</span>
       </button>
       <div class="header-nav">
         {#if activeNav === "home"}
@@ -194,7 +195,7 @@
           aria-expanded={settingsOpen}
           onclick={() => (settingsOpen = !settingsOpen)}
         >
-          {@html svgIcon(settingsIcon)}
+          <span class="material-symbols-rounded">settings</span>
         </button>
         {#if settingsOpen}
           <div class="settings-pop" bind:this={settingsPop} role="dialog" aria-label="Appearance settings">
@@ -267,7 +268,7 @@
         {/if}
       </div>
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
-        {@html svgIcon(refreshIcon)}
+        <span class="material-symbols-rounded">refresh</span>
       </button>
       <button
         class="icon-btn"
@@ -275,7 +276,7 @@
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         onclick={onNotifications}
       >
-        {@html svgIcon(notificationsIcon)}
+        <span class="material-symbols-rounded">notifications</span>
         {#if unreadCount > 0}
           <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
         {/if}
@@ -313,7 +314,7 @@
             class:active={activeNav === item.id}
             onclick={() => onNav(item)}
           >
-            <span class="nav-icon">{@html item.icon}</span>
+            <span class="nav-icon material-symbols-rounded">{item.icon}</span>
             <span>{item.label}</span>
           </button>
         {/each}
@@ -329,6 +330,10 @@
         <MarksView studentId={userId} bind:this={pages.marks} />
       {:else if activeNav === "events"}
         <EventsView studentId={userId} bind:this={pages.events} />
+      {:else if activeNav === "standing"}
+        <StandingView studentId={userId} bind:this={pages.standing} />
+      {:else if activeNav === "clubs"}
+        <ClubsView studentId={userId} bind:this={pages.clubs} />
       {:else}
         <ScheduleView
           studentId={userId}

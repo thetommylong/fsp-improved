@@ -8,7 +8,6 @@
     markNotificationAsRead,
   } from "../../api";
   import type { Notification, NotificationsResult } from "../../types/fsp";
-  import closeIcon from "../../assets/icons/close.svg?raw";
 
   let {
     userId,
@@ -128,7 +127,7 @@
           aria-label="Close"
           onclick={onclose}
         >
-          {@html closeIcon}
+          <span class="material-symbols-rounded">close</span>
         </button>
       </div>
 
