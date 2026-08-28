@@ -239,6 +239,54 @@
   overflow: hidden;
 }
 
+.chat-panel {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--base);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.chat-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 5;
+}
+
+.chat-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.chat-resize-handle:hover::after,
+.chat-resize-handle:active::after {
+  background: var(--accent);
+}
+
+.chat-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--overlay0);
+  font-size: 13px;
+}
+
 .schedule {
   display: flex;
   flex-direction: column;
@@ -1764,6 +1812,17 @@
   .marks-toolbar-actions {
     margin-left: 0;
   }
+
+  .chat-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 20;
+    width: min(340px, 84vw);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.35);
+  }
 }
 
 .settings-wrap {
@@ -2389,6 +2448,624 @@
 
 .fb-dialog::backdrop {
   animation: backdrop-in 0.2s ease-out both;
+}
+
+/* ── AI Chat ───────────────────────────────────────────────────── */
+
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.chat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chat-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.chat-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--subtext0);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.chat-icon-btn:hover {
+  background: var(--surface0);
+  color: var(--text);
+}
+
+.chat-icon-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.chat-icon-btn span {
+  font-size: 20px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-input {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  flex-shrink: 0;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--surface0);
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+  min-height: 40px;
+  max-height: 120px;
+  transition: background 0.15s ease;
+}
+
+.chat-input textarea::placeholder {
+  color: var(--subtext0);
+}
+
+.chat-input textarea:focus-visible {
+  background: var(--surface1);
+}
+
+.chat-input textarea:disabled {
+  opacity: 0.5;
+}
+
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.send-btn span {
+  font-size: 18px;
+}
+
+.confirm-inline {
+  margin-top: 4px;
+}
+
+/* ── chat messages ─────────────────────────────────────────────── */
+
+.msg {
+  display: flex;
+  padding: 2px 0;
+}
+
+.msg.user {
+  justify-content: flex-end;
+}
+
+.msg.assistant,
+.msg.system {
+  justify-content: flex-start;
+}
+
+.bubble {
+  max-width: 88%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.msg.user .bubble {
+  background: var(--accent);
+  color: var(--base);
+  border-bottom-right-radius: 4px;
+}
+
+.msg.assistant .bubble,
+.msg.system .bubble {
+  background: var(--surface0);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+/* Make tool bubbles clickable */
+.msg.system .bubble.tool-call,
+.msg.system .bubble.tool-result {
+  cursor: pointer;
+}
+
+.tool-call {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface0);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--subtext0);
+  border-bottom-left-radius: 4px;
+  font-size: 12px;
+}
+
+.tool-call span:first-child {
+  font-size: 14px;
+  flex-shrink: 0;
+  color: var(--subtext0);
+}
+
+.tc-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tc-args {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+  color: var(--overlay0);
+}
+
+.tool-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  background: var(--surface0);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--subtext0);
+  border-bottom-left-radius: 4px;
+  font-size: 12px;
+}
+
+.tool-result span:first-child {
+  font-size: 14px;
+  flex-shrink: 0;
+  color: var(--green);
+}
+
+.tool-result.error {
+  border-left: 2px solid var(--red);
+}
+
+.tool-result.error span:first-child {
+  color: var(--red);
+}
+
+.tr-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.error-msg {
+  background: color-mix(in srgb, var(--red) 12%, var(--surface0));
+  border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+  color: var(--red);
+  border-bottom-left-radius: 4px;
+}
+
+/* ── markdown content ──────────────────────────────────────────── */
+
+.bubble :is(p, ul, ol, pre, blockquote, table) {
+  margin: 0 0 8px;
+}
+
+.bubble :is(p, ul, ol, pre, blockquote, table):last-child {
+  margin-bottom: 0;
+}
+
+.bubble ul,
+.bubble ol {
+  padding-left: 20px;
+}
+
+.bubble li {
+  margin: 2px 0;
+}
+
+.bubble h1,
+.bubble h2,
+.bubble h3,
+.bubble h4,
+.bubble h5,
+.bubble h6 {
+  margin: 10px 0 6px;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.bubble h1 {
+  font-size: 16px;
+}
+
+.bubble h2 {
+  font-size: 15px;
+}
+
+.bubble h3 {
+  font-size: 14px;
+}
+
+.bubble h4,
+.bubble h5,
+.bubble h6 {
+  font-size: 13px;
+}
+
+.bubble a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.bubble a:hover {
+  text-decoration: underline;
+}
+
+.bubble code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--base) 60%, transparent);
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: pre-wrap;
+}
+
+.bubble pre {
+  background: var(--base);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+.bubble pre code {
+  background: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+.bubble blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
+  color: var(--subtext0);
+}
+
+.bubble table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.bubble th,
+.bubble td {
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  text-align: left;
+}
+
+.bubble th {
+  background: var(--base);
+  font-weight: 600;
+  color: var(--subtext0);
+}
+
+.bubble hr {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  margin: 10px 0;
+}
+
+.bubble strong {
+  color: var(--text);
+}
+
+
+/* ── confirm card ──────────────────────────────────────────────── */
+
+.confirm-card {
+  background: color-mix(in srgb, var(--yellow) 8%, var(--surface0));
+  border: 1px solid color-mix(in srgb, var(--yellow) 25%, transparent);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 4px 0;
+  max-width: 88%;
+}
+
+.confirm-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.confirm-header span:first-child {
+  font-size: 16px;
+  color: var(--yellow);
+}
+
+.confirm-desc {
+  font-size: 12px;
+  color: var(--subtext0);
+  margin: 0 0 8px;
+}
+
+.confirm-args {
+  background: var(--base);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.arg-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.arg-key {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.arg-val {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.confirm-actions button {
+  flex: 1;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-approve {
+  background: var(--green);
+  color: var(--base);
+}
+
+.btn-approve:hover {
+  opacity: 0.85;
+}
+
+.btn-reject {
+  background: var(--surface0);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.btn-reject:hover {
+  background: var(--surface1);
+}
+
+/* ── model picker ──────────────────────────────────────────────── */
+
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--mantle) 70%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147484;
+}
+
+.picker {
+  background: var(--base);
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 16px;
+  width: 360px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  animation: picker-in 0.15s ease-out;
+}
+
+@keyframes picker-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.picker-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.picker-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--subtext0);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.picker-close:hover {
+  background: var(--surface0);
+  color: var(--text);
+}
+
+.picker-close span {
+  font-size: 18px;
+}
+
+.picker-body {
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.model-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+
+.model-item:hover {
+  background: var(--surface0);
+}
+
+.model-item.selected {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.model-id {
+  flex: 1;
+  font-family: monospace;
+  font-size: 12px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-owner {
+  font-size: 11px;
+  color: var(--subtext0);
+  flex-shrink: 0;
+}
+
+.model-check {
+  font-size: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.picker-status {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--subtext0);
+}
+
+.picker-status.error {
+  color: var(--red);
+}
+
+.picker-retry {
+  display: block;
+  margin: 0 auto 12px;
+  padding: 6px 18px;
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 8px;
+  background: var(--surface0);
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.picker-retry:hover {
+  background: var(--surface1);
 }
 
 /* ── reduced motion ──────────────────────────────────────────── */

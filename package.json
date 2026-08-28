@@ -32,6 +32,8 @@
     "vite-plugin-monkey": "^8.0.0"
   },
   "dependencies": {
-    "@js-temporal/polyfill": "^0.5.1"
+    "@js-temporal/polyfill": "^0.5.1",
+    "dompurify": "^3.4.14",
+    "marked": "^18.0.11"
   }
 }

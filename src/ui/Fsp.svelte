@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import { getUserById, getUserImage } from "../api";
+  import {
+    getUserById,
+    getUserImage,
+    getDefaultTerm,
+    getStudentContext,
+  } from "../api";
+  import type { AgentContext } from "../sdk/types";
   import { notify } from "../notifications";
   import ScheduleView from "./fsp/ScheduleView.svelte";
   import MarksView from "./fsp/MarksView.svelte";
@@ -19,6 +25,7 @@
   import EventsView from "./fsp/EventsView.svelte";
   import StandingView from "./fsp/StandingView.svelte";
   import ClubsView from "./fsp/ClubsView.svelte";
+  import ChatSidebar from "./fsp/ChatSidebar.svelte";
 
   const NAV_IDS = [
     "home",
@@ -69,6 +76,35 @@
   let unreadCount = $state(0);
   let scheduleDate = $state("");
   let lastTrigger = $state<HTMLElement>();
+  let chatOpen = $state(false);
+  let agentContext = $state<AgentContext | null>(null);
+  const CHAT_WIDTH_MIN = 280;
+  const CHAT_WIDTH_MAX = 640;
+  let chatWidth = $state(340);
+
+  function onChatResizeStart(e: PointerEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = chatWidth;
+    const onMove = (ev: PointerEvent) => {
+      const delta = startX - ev.clientX;
+      const next = Math.min(
+        CHAT_WIDTH_MAX,
+        Math.max(CHAT_WIDTH_MIN, startWidth + delta),
+      );
+      chatWidth = next;
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }
 
   interface PageRef {
     refresh(): void;
@@ -138,6 +174,29 @@
     });
   });
 
+  $effect(() => {
+    const id = userId;
+    getStudentContext().then(async (ctx) => {
+      let termId = "";
+      let termName = "Current Term";
+      try {
+        const term = await getDefaultTerm(ctx.campusId);
+        termId = term.termId;
+        termName = term.semesterName;
+      } catch {}
+      agentContext = {
+        studentId: ctx.studentId,
+        userId: ctx.userId,
+        campusId: ctx.campusId,
+        campusCode: ctx.campusCode,
+        termId,
+        termName,
+        termOrder: ctx.termOrder,
+        academicYear: ctx.academicYear,
+      };
+    });
+  });
+
   function restoreFocus() {
     requestAnimationFrame(() => lastTrigger?.focus());
   }
@@ -174,6 +233,10 @@
     activeNav = item.id;
     if (isMobile.matches) sidebarOpen = false;
   }
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+  }
 </script>
 
 <div class="shell">
@@ -206,6 +269,15 @@
       </div>
     </div>
     <div class="header-right">
+      <button
+        class="icon-btn"
+        class:active={chatOpen}
+        aria-label="Toggle AI assistant"
+        aria-expanded={chatOpen}
+        onclick={toggleChat}
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">chat</span>
+      </button>
       <div class="settings-wrap">
         <button
           class="icon-btn"
@@ -373,6 +445,27 @@
         />
       {/if}
     </main>
+
+    {#if chatOpen}
+      <aside
+        class="chat-panel"
+        style={`width: ${chatWidth}px;`}
+        aria-label="AI Assistant"
+      >
+        <div
+          class="chat-resize-handle"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize AI assistant"
+          onpointerdown={onChatResizeStart}
+        ></div>
+        {#if agentContext}
+          <ChatSidebar {agentContext} />
+        {:else}
+          <div class="chat-loading">Loading context...</div>
+        {/if}
+      </aside>
+    {/if}
   </div>
 
   <NotificationsPanel
