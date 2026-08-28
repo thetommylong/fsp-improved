@@ -29,10 +29,17 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Read version from package.json
+        id: version
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+
       - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-latest
-          name: Latest Build
+          name: Latest Build (v${{ steps.version.outputs.version }})
+          body: |
+            Automated build from the latest `main`.
+            **Version:** v${{ steps.version.outputs.version }}
+          make_latest: true
           files: dist/fsp-quality-of-life.user.js
-          asset_name: script.user.js

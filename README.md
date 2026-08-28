@@ -18,7 +18,7 @@
 **Installation**
 
 1. Install a userscript manager like **Violentmonkey** or **Tampermonkey** on desktop or mobile Firefox.
-2. Click **[FSP Improved.user.js](https://github.com/thetommylong/fsp-improved/releases/latest/download/script.user.js)**.
+2. Click **[FSP Improved.user.js](https://github.com/thetommylong/fsp-improved/releases/latest/download/fsp-quality-of-life.user.js)**.
 3. Open the portal and enjoy a usable UI.
 
 **Licensing**
