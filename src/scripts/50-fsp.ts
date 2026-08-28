@@ -5,7 +5,7 @@ import { mount } from "svelte";
 import { isTokenExpired, getTokenPayload } from "../api";
 import { site } from "../site";
 import Fsp from "../ui/Fsp.svelte";
-import fspCss from "../ui/fsp/fsp.css?inline";
+import sharedCss from "../ui/fsp/shared.css?inline";
 
 const TOKEN_POLL_MS = 250;
 const TOKEN_WAIT_MS = 60_000;
@@ -45,14 +45,23 @@ function boot(userId: string) {
 
     document.body.replaceChildren(host);
 
+    // Drop the portal's own stylesheet(s) from <head> so their 8k+ rules stop
+    // bleeding into the app chrome. Only same-origin/relative <link rel="stylesheet">
+    // (e.g. `styles-W27TWSNY.css`) are removed — absolute links like the Google
+    // Fonts sheet and the userscript's own injected <style> blocks are kept.
+    document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+      const href = link.getAttribute("href") ?? "";
+      if (/^https?:\/\//.test(href) || href.startsWith("//")) return;
+      link.remove();
+    });
+
     window.stop();
 
-    const shadow = host.attachShadow({ mode: "open" });
     const style = document.createElement("style");
-    style.textContent = fspCss;
-    shadow.append(style);
+    style.textContent = sharedCss;
+    host.appendChild(style);
 
-    mount(Fsp, { target: shadow, props: { userId } });
+    mount(Fsp, { target: host, props: { userId } });
 
     void Promise.allSettled([
       document.fonts.load('400 16px "Open Sans"'),

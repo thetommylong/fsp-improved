@@ -88,3 +88,229 @@
     <div class="bubble error-msg">{event.content}</div>
   </div>
 {/if}
+
+<style>
+  .msg {
+    display: flex;
+    padding: 2px 0;
+  }
+
+  .msg.user {
+    justify-content: flex-end;
+  }
+
+  .msg.assistant,
+  .msg.system {
+    justify-content: flex-start;
+  }
+
+  .bubble {
+    max-width: 88%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  .msg.user .bubble {
+    background: var(--accent);
+    color: var(--base);
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.assistant .bubble,
+  .msg.system .bubble {
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg.system .bubble.tool-call,
+  .msg.system .bubble.tool-result {
+    cursor: pointer;
+  }
+
+  .tool-call {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    color: var(--subtext0);
+    border-bottom-left-radius: 4px;
+    font-size: 12px;
+  }
+
+  .tool-call span:first-child {
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--subtext0);
+  }
+
+  .tc-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .tc-args {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+    color: var(--overlay0);
+  }
+
+  .tool-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    color: var(--subtext0);
+    border-bottom-left-radius: 4px;
+    font-size: 12px;
+  }
+
+  .tool-result span:first-child {
+    font-size: 14px;
+    flex-shrink: 0;
+    color: var(--green);
+  }
+
+  .tool-result.error {
+    border-left: 2px solid var(--red);
+  }
+
+  .tool-result.error span:first-child {
+    color: var(--red);
+  }
+
+  .tr-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .error-msg {
+    background: color-mix(in srgb, var(--red) 12%, var(--surface0));
+    border: 1px solid color-mix(in srgb, var(--red) 25%, transparent);
+    color: var(--red);
+    border-bottom-left-radius: 4px;
+  }
+
+  :global(.bubble :is(p, ul, ol, pre, blockquote, table)) {
+    margin: 0 0 8px;
+  }
+
+  :global(.bubble :is(p, ul, ol, pre, blockquote, table):last-child) {
+    margin-bottom: 0;
+  }
+
+  :global(.bubble ul),
+  :global(.bubble ol) {
+    padding-left: 20px;
+  }
+
+  :global(.bubble li) {
+    margin: 2px 0;
+  }
+
+  :global(.bubble h1),
+  :global(.bubble h2),
+  :global(.bubble h3),
+  :global(.bubble h4),
+  :global(.bubble h5),
+  :global(.bubble h6) {
+    margin: 10px 0 6px;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  :global(.bubble h1) {
+    font-size: 16px;
+  }
+
+  :global(.bubble h2) {
+    font-size: 15px;
+  }
+
+  :global(.bubble h3) {
+    font-size: 14px;
+  }
+
+  :global(.bubble h4),
+  :global(.bubble h5),
+  :global(.bubble h6) {
+    font-size: 13px;
+  }
+
+  :global(.bubble a) {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  :global(.bubble a:hover) {
+    text-decoration: underline;
+  }
+
+  :global(.bubble code) {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12px;
+    background: color-mix(in srgb, var(--base) 60%, transparent);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: pre-wrap;
+  }
+
+  :global(.bubble pre) {
+    background: var(--base);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+  }
+
+  :global(.bubble pre code) {
+    background: transparent;
+    padding: 0;
+    white-space: pre;
+  }
+
+  :global(.bubble blockquote) {
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    color: var(--subtext0);
+  }
+
+  :global(.bubble table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  :global(.bubble th),
+  :global(.bubble td) {
+    padding: 5px 10px;
+    border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+    text-align: left;
+  }
+
+  :global(.bubble th) {
+    background: var(--base);
+    font-weight: 600;
+    color: var(--subtext0);
+  }
+
+  :global(.bubble hr) {
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+    margin: 10px 0;
+  }
+
+  :global(.bubble strong) {
+    color: var(--text);
+  }
+</style>

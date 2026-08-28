@@ -83,3 +83,154 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .picker-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--mantle) 70%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147484;
+  }
+
+  .picker {
+    background: var(--base);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 16px;
+    width: 360px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    animation: picker-in 0.15s ease-out;
+  }
+
+  .picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .picker-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .picker-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--subtext0);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .picker-close:hover {
+    background: var(--surface0);
+    color: var(--text);
+  }
+
+  .picker-close span {
+    font-size: 18px;
+  }
+
+  .picker-body {
+    padding: 8px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .model-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 36px;
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    transition: background 0.15s ease;
+  }
+
+  .model-item:hover {
+    background: var(--surface0);
+  }
+
+  .model-item.selected {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .model-id {
+    flex: 1;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .model-owner {
+    font-size: 11px;
+    color: var(--subtext0);
+    flex-shrink: 0;
+  }
+
+  .model-check {
+    font-size: 16px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .picker-status {
+    padding: 28px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--subtext0);
+  }
+
+  .picker-status.error {
+    color: var(--red);
+  }
+
+  .picker-retry {
+    display: block;
+    margin: 0 auto 12px;
+    padding: 6px 18px;
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 8px;
+    background: var(--surface0);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .picker-retry:hover {
+    background: var(--surface1);
+  }
+</style>

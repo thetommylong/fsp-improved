@@ -407,3 +407,164 @@
     onclose={closeEntry}
   />
 {/if}
+
+<style>
+  .schedule {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .schedule-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border-top: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    position: relative;
+  }
+
+  .schedule-inner {
+    position: relative;
+    display: flex;
+    min-height: 100%;
+  }
+
+  .time-gutter {
+    position: relative;
+    width: 64px;
+    flex-shrink: 0;
+  }
+
+  .time-label {
+    position: absolute;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--subtext0);
+    user-select: none;
+  }
+
+  .day-grid {
+    position: relative;
+    flex: 1;
+    border-left: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--text) 16%, transparent) 1px, transparent 1px),
+      linear-gradient(color-mix(in srgb, var(--text) 8%, transparent) 1px, transparent 1px);
+    background-size:
+      100% 96px,
+      100% 48px;
+  }
+
+  .week-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .day-headers {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: 36px;
+    background: var(--mantle);
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--subtext0);
+    user-select: none;
+  }
+
+  .day-header.today {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .week-grid {
+    display: grid;
+  }
+
+  .day-column {
+    position: relative;
+    min-width: 0;
+    border-left: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .events {
+    position: absolute;
+    inset: 0;
+    padding: 2px 0;
+  }
+
+  .event {
+    position: absolute;
+    left: 8px;
+    right: 16px;
+    min-height: 56px;
+    box-sizing: border-box;
+    padding-bottom: 4px;
+  }
+
+  .now-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--red);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .now-line::before {
+    content: "";
+    position: absolute;
+    left: -4px;
+    top: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+
+  .schedule-empty {
+    position: absolute;
+    inset: 96px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--overlay0);
+    font-size: 13px;
+    user-select: none;
+  }
+
+  .schedule-loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .time-gutter {
+      width: 44px;
+    }
+
+    .time-label {
+      right: 6px;
+      font-size: 9px;
+    }
+
+    .event {
+      left: 6px;
+      right: 6px;
+    }
+  }
+</style>

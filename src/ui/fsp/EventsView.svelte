@@ -155,3 +155,69 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .events-grid {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    padding: 4px 20px 10px;
+  }
+
+  .events-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .event-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--surface0);
+  }
+
+  .btn-register,
+  .btn-unregister {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-register {
+    background: var(--accent);
+    color: var(--base);
+  }
+
+  .btn-register:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  .btn-register:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-unregister {
+    background: color-mix(in srgb, var(--surface0) 70%, transparent);
+    color: var(--text);
+  }
+
+  .btn-unregister:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--surface0) 85%, transparent);
+  }
+
+  .btn-unregister:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>

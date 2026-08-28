@@ -118,3 +118,164 @@
 >
   {@render LessonBody({ entry })}
 </button>
+
+<style>
+  .lesson {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    border-radius: 8px;
+    background: var(--base);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    overflow: hidden;
+    --stripe: transparent;
+    transition: background 0.15s ease;
+  }
+
+  .lesson-accent {
+    flex: 0 0 6px;
+    align-self: stretch;
+    background: var(--stripe);
+  }
+
+  .lesson-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 10px;
+    word-break: normal;
+  }
+
+  .lesson-content > * {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .lesson-content.compact .lesson-subject {
+    white-space: nowrap;
+  }
+
+  .lesson.edunext {
+    --stripe: var(--green);
+  }
+
+  .lesson.absent {
+    --stripe: var(--red);
+  }
+
+  .lesson.absent.edunext .lesson-accent {
+    background: linear-gradient(to bottom, var(--red), var(--green));
+  }
+
+  .lesson.late {
+    --stripe: var(--blue);
+  }
+
+  .lesson.late.edunext .lesson-accent {
+    background: linear-gradient(to bottom, var(--blue), var(--green));
+  }
+
+  .lesson.study-leave {
+    --stripe: var(--yellow);
+  }
+
+  .lesson.study-leave.edunext .lesson-accent {
+    background: linear-gradient(to bottom, var(--yellow), var(--green));
+  }
+
+  .lesson:hover {
+    background: var(--base);
+  }
+
+  .lesson.clickable {
+    cursor: pointer;
+    appearance: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .lesson.clickable:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .lesson.clickable:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .lesson.clickable:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .lesson-subject {
+    font-size: 0.85rem;
+    line-height: 1.25;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lesson-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--subtext0);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .lesson-room,
+  .lesson-lecturer {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lesson-meta.stack {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .lesson-meta.stack .lesson-room {
+    order: 2;
+  }
+
+  .lesson-meta.stack .lesson-lecturer {
+    order: 1;
+  }
+
+  .lesson-meta .dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--overlay0);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .lesson-accent {
+      flex-basis: 4px;
+    }
+
+    .lesson-content {
+      padding: 5px 8px;
+    }
+  }
+</style>

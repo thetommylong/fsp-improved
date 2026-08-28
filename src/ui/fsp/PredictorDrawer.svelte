@@ -498,3 +498,508 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    background: color-mix(in srgb, var(--mantle) 70%, transparent);
+    animation: backdrop-in 0.18s ease-out both;
+  }
+
+  .drawer {
+    display: flex;
+    flex-direction: column;
+    width: 480px;
+    max-width: 100%;
+    height: 100%;
+    background: var(--base);
+    border-left: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    font-family: "Inter", system-ui, sans-serif;
+    animation: drawer-in 0.18s ease-out;
+  }
+
+  .drawer:focus-visible {
+    outline: none;
+  }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 20px;
+    flex-shrink: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .drawer-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--subtext0);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .drawer-close:hover {
+    color: var(--text);
+    background: var(--surface0);
+  }
+
+  .drawer-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .drawer-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 20px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .drawer-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .drawer-instruction {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--subtext0);
+  }
+
+  .drawer-presets {
+    display: flex;
+    gap: 6px;
+  }
+
+  .drawer-preset-btn {
+    height: 26px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .drawer-preset-btn:hover {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  .drawer-preset-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .drawer-input {
+    width: 72px;
+    height: 28px;
+    padding: 0 8px;
+    margin-left: auto;
+    border: none;
+    border-radius: 8px;
+    background: var(--surface0);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+  }
+
+  .drawer-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .drawer-loading,
+  .drawer-note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--subtext0);
+  }
+
+  .drawer-subjects {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .drawer-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 12px;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    appearance: none;
+    transition: background 0.12s ease, transform 0.12s ease;
+  }
+
+  .drawer-row:hover {
+    transform: translateY(-1px);
+  }
+
+  .drawer-row:active {
+    transform: translateY(0);
+  }
+
+  .drawer-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .drawer-row-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .drawer-subject-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .drawer-gk {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--subtext0);
+  }
+
+  .drawer-projection {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .drawer-slider {
+    flex: 1 1 100%;
+    height: 4px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .drawer-ck-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .drawer-slider:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .drawer-tb-badge,
+  .drawer-cn-badge {
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .drawer-tb-badge {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .drawer-cn-badge {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+
+  .drawer-status {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  .drawer-status.on-track {
+    color: var(--yellow);
+    background: color-mix(in srgb, var(--yellow) 12%, transparent);
+  }
+
+  .drawer-status.secured {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+
+  .drawer-status.unknown {
+    color: var(--subtext0);
+    background: color-mix(in srgb, var(--surface1) 80%, transparent);
+  }
+
+  .drawer-status.impossible {
+    color: var(--red);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+
+  .drawer-finalized {
+    font-size: 12px;
+    color: var(--subtext0);
+  }
+
+  .drawer-footer {
+    display: flex;
+    gap: 8px;
+    padding: 14px 20px;
+    flex-shrink: 0;
+    border-top: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .drawer-apply,
+  .drawer-cancel {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .drawer-apply {
+    background: var(--accent);
+    color: var(--base);
+  }
+
+  .drawer-apply:hover {
+    opacity: 0.9;
+  }
+
+  .drawer-cancel {
+    background: color-mix(in srgb, var(--surface0) 70%, transparent);
+    color: var(--text);
+  }
+
+  .drawer-cancel:hover {
+    background: color-mix(in srgb, var(--surface0) 85%, transparent);
+  }
+
+  .drawer-apply:focus-visible,
+  .drawer-cancel:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .detail-view {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .detail-back {
+    height: 26px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface0) 70%, transparent);
+    color: var(--subtext0);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .detail-back:hover {
+    color: var(--text);
+    background: var(--surface0);
+  }
+
+  .detail-back:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .detail-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .detail-table-wrap {
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: inherit;
+  }
+
+  .detail-table th {
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--subtext0);
+    background: var(--base);
+    border-bottom: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+
+  .detail-table td {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text);
+    border-top: 1px solid color-mix(in srgb, var(--text) 6%, transparent);
+  }
+
+  .detail-table tr:first-child td {
+    border-top: none;
+  }
+
+  .detail-table td:first-child {
+    width: 55%;
+    font-weight: 600;
+  }
+
+  .detail-separator td {
+    border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  }
+
+  .detail-input {
+    width: 100%;
+    height: 26px;
+    padding: 0 8px;
+    border: none;
+    border-radius: 8px;
+    background: var(--base);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+  }
+
+  .detail-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .detail-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .detail-results {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .detail-result {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--surface0);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: 12px;
+  }
+
+  .detail-result-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--subtext0);
+  }
+
+  .detail-result-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .detail-target {
+    grid-column: 1 / -1;
+  }
+
+  .detail-impossible {
+    color: var(--red);
+  }
+
+  .detail-secured {
+    color: var(--green);
+  }
+
+  .detail-unknown {
+    color: var(--subtext0);
+  }
+
+  .detail-need {
+    color: var(--yellow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .drawer {
+      width: 100%;
+    }
+  }
+</style>

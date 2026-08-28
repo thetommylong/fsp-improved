@@ -164,3 +164,217 @@
     </div>
   </div>
 </div>
+
+<style>
+  .popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: color-mix(in srgb, var(--mantle) 70%, transparent);
+    animation: backdrop-in 0.2s ease-out both;
+  }
+
+  .popup {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 640px;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    padding: 36px;
+    border-radius: 16px;
+    background: var(--base);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+    font-family: "Inter", system-ui, sans-serif;
+    animation: popup-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .popup-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+    gap: 8px;
+  }
+
+  .popup-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .popup-subject {
+    font-size: 16px;
+    color: var(--text);
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .popup-meta {
+    font-size: 12px;
+    color: var(--subtext0);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .popup-when {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .popup-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .popup-close:hover {
+    opacity: 1;
+    background: color-mix(in srgb, var(--text) 16%, transparent);
+  }
+
+  .popup-date {
+    font-size: 12px;
+    color: var(--subtext0);
+    white-space: nowrap;
+  }
+
+  .popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 240px;
+  }
+
+  .popup-body section h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--overlay0);
+  }
+
+  .popup-body section p {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text);
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .popup-body section p.empty {
+    color: var(--overlay0);
+  }
+
+  .popup-checking {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--overlay0);
+  }
+
+  .popup-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .popup-class .dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--overlay0);
+    flex-shrink: 0;
+  }
+
+  .popup-class {
+    font-size: 12px;
+    color: var(--subtext0);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .att-badge {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .att-badge.present {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+
+  .att-badge.late {
+    color: var(--yellow);
+    background: color-mix(in srgb, var(--yellow) 12%, transparent);
+  }
+
+  .att-badge.absent {
+    color: var(--red);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+
+  .att-badge.study-leave {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+
+  .popup-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    text-decoration: none;
+  }
+
+  .popup-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .popup {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .popup-backdrop {
+      padding: 12px;
+    }
+
+    .popup {
+      padding: 20px;
+      border-radius: 12px;
+    }
+  }
+</style>

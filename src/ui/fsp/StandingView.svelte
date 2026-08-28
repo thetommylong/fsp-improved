@@ -250,3 +250,13 @@
     </button>
   </li>
 {/snippet}
+
+<style>
+  .standing-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 6px;
+    border-top: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+  }
+</style>

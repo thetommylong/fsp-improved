@@ -159,3 +159,139 @@
 </div>
 
 <ModelPicker open={modelPickerOpen} onclose={() => (modelPickerOpen = false)} />
+
+<style>
+  .chat-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 14px;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .chat-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .chat-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .chat-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--subtext0);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .chat-icon-btn:hover {
+    background: var(--surface0);
+    color: var(--text);
+  }
+
+  .chat-icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .chat-icon-btn span {
+    font-size: 20px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .chat-input {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px 14px;
+    flex-shrink: 0;
+  }
+
+  .chat-input textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: var(--surface0);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    outline: none;
+    min-height: 40px;
+    max-height: 120px;
+    transition: background 0.15s ease;
+  }
+
+  .chat-input textarea::placeholder {
+    color: var(--subtext0);
+  }
+
+  .chat-input textarea:focus-visible {
+    background: var(--surface1);
+  }
+
+  .chat-input textarea:disabled {
+    opacity: 0.5;
+  }
+
+  .send-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--base);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .send-btn:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .send-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .send-btn span {
+    font-size: 18px;
+  }
+
+  .confirm-inline {
+    margin-top: 4px;
+  }
+</style>

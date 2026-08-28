@@ -347,3 +347,44 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
     }} 
   />
 {/if}
+
+<style>
+  .marks-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .btn-marks {
+    height: 30px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--surface0);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .btn-marks:hover {
+    background: var(--surface1);
+    color: var(--accent);
+  }
+
+  .btn-marks:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  @media (max-width: 768px) {
+    .marks-toolbar-actions {
+      margin-left: 0;
+    }
+  }
+</style>
