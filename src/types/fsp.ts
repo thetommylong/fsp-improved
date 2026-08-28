@@ -537,6 +537,8 @@ export interface TimeSlot {
   logs: unknown;
 }
 
+export type AttendanceStatus = "PRESENT" | "LATE" | "ABSENT" | "STUDY_LEAVE";
+
 export interface ScheduleEntry {
   id: string;
   date: string;
@@ -551,7 +553,7 @@ export interface ScheduleEntry {
   className: string;
   slotNo: number;
   timeSlotId: string;
-  status: string;
+  status: AttendanceStatus;
   hasAbsenceRequest: boolean;
   absenceRequestReason: string | null;
   comment: string | null;

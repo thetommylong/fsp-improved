@@ -28,6 +28,22 @@
     return `${day} · ${pad(d.hour)}:${pad(d.minute)}–${pad(e.hour)}:${pad(e.minute)}`;
   });
 
+  const attendanceBadge = $derived.by(() => {
+    const end = Temporal.PlainDateTime.from(entry.endDateTime);
+    const now = Temporal.Now.plainDateTimeISO();
+    if (Temporal.PlainDateTime.compare(end, now) > 0) return null;
+    switch (entry.status) {
+      case "PRESENT":
+        return { label: "Present", cls: "present" };
+      case "LATE":
+        return { label: "Late", cls: "late" };
+      case "ABSENT":
+        return { label: "Absent", cls: "absent" };
+      case "STUDY_LEAVE":
+        return { label: "Excused", cls: "study-leave" };
+    }
+  });
+
   let dialogEl = $state<HTMLDivElement>();
 
   $effect(() => {
@@ -126,7 +142,13 @@
       </section>
 
       <div class="popup-footer">
-        <span class="popup-class">{entry.className}</span>
+        <span class="popup-class">
+          {entry.className}
+          {#if attendanceBadge}
+            <span class="dot"></span>
+            <span class="att-badge att-{attendanceBadge.cls}">{attendanceBadge.label}</span>
+          {/if}
+        </span>
         {#if entry.eduNextUrl}
           <a
             class="popup-link"

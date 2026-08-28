@@ -1235,6 +1235,27 @@
   --stripe: var(--green);
 }
 
+.lesson.absent {
+  --stripe: var(--red);
+}
+.lesson.absent.edunext .lesson-accent {
+  background: linear-gradient(to bottom, var(--red), var(--green));
+}
+
+.lesson.late {
+  --stripe: var(--blue);
+}
+.lesson.late.edunext .lesson-accent {
+  background: linear-gradient(to bottom, var(--blue), var(--green));
+}
+
+.lesson.study-leave {
+  --stripe: var(--yellow);
+}
+.lesson.study-leave.edunext .lesson-accent {
+  background: linear-gradient(to bottom, var(--yellow), var(--green));
+}
+
 .lesson:hover {
   background: var(--base);
 }
@@ -1450,9 +1471,49 @@
   padding-top: 6px;
 }
 
+.popup-class .dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--overlay0);
+  flex-shrink: 0;
+}
+
 .popup-class {
   font-size: 12px;
   color: var(--subtext0);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.att-badge {
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.att-badge.present {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+}
+
+.att-badge.late {
+  color: var(--yellow);
+  background: color-mix(in srgb, var(--yellow) 12%, transparent);
+}
+
+.att-badge.absent {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.att-badge.study-leave {
+  color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
 }
 
 .popup-link {

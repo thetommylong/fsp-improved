@@ -18,6 +18,19 @@
 
   const isEdunext = $derived(Boolean(entry.eduNextUrl));
 
+  const statusClass = $derived.by(() => {
+    switch (entry.status) {
+      case "ABSENT":
+        return "absent";
+      case "LATE":
+        return "late";
+      case "STUDY_LEAVE":
+        return "study-leave";
+      default:
+        return null;
+    }
+  });
+
   const lessonLabel = $derived.by(() => {
     const start = new Date(entry.startDateTime);
     const end = new Date(entry.endDateTime);
@@ -96,6 +109,9 @@
   type="button"
   class="lesson clickable"
   class:edunext={isEdunext}
+  class:absent={statusClass === "absent"}
+  class:late={statusClass === "late"}
+  class:study-leave={statusClass === "study-leave"}
   aria-label={lessonLabel}
   onclick={open}
   onkeydown={onKeydown}
