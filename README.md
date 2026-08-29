@@ -1,6 +1,6 @@
-**FSP Improved**
+**Portals Improved**
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://github.com/thetommylong/fsp-improved/blob/main/LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://github.com/thetommylong/portals-improved/blob/main/LICENSE)
 
 > *Because the official portal is so broken it felt like a personal insult.*
 
@@ -18,8 +18,8 @@
 **Installation**
 
 1. Install a userscript manager like **Violentmonkey** or **Tampermonkey** on desktop or mobile Firefox.
-2. Click **[FSP Improved.user.js](https://github.com/thetommylong/fsp-improved/releases/latest/download/fsp-quality-of-life.user.js)**.
-3. The script matches every site but only activates on the FSP portal; elsewhere it's a no-op. Open the portal and enjoy a usable UI.
+2. Click **[Portals Improved.user.js](https://github.com/thetommylong/portals-improved/releases/latest/download/script.user.js)**.
+3. Enjoy!
 
 **Licensing**
 
