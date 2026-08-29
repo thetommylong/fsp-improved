@@ -2,13 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getClubsByTerm,
-    getDefaultTerm,
-    getTokenPayload,
-    getTermsByCampus,
-  } from "../../api";
-  import type { Club, Term } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { Club, Term } from "../../types/portal";
   import { notify } from "../../notifications";
   import { readTerms, writeTerms } from "../../marksCache";
 
@@ -76,7 +71,8 @@
   }
 
   async function init() {
-    const campusId = getTokenPayload()?.campusId as string;
+    const ctx = await runtime.adapter.getStudentContext();
+    const campusId = ctx.campusId;
     const cached = readTerms(campusId);
     if (cached) {
       terms = cached.terms;
@@ -84,8 +80,8 @@
     }
     try {
       const [list, def] = await Promise.all([
-        getTermsByCampus(campusId),
-        getDefaultTerm(campusId),
+        runtime.adapter.getTermsByCampus(campusId),
+        runtime.adapter.getDefaultTerm(campusId),
       ]);
       terms = list;
       writeTerms(campusId, list, def.termId);
@@ -111,7 +107,7 @@
 
     loading = true;
     try {
-      clubs = await getClubsByTerm(termId, studentId);
+      clubs = await runtime.adapter.getClubsByTerm(termId, studentId);
     } catch {
       notify("Failed to load clubs", "error");
     } finally {

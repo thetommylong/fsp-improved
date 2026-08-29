@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-import type { MarkCommon } from "../../types/fsp";
+import type { MarkCommon } from "../../types/portal";
 import { getGKValue, getCKValue } from "./marksHelpers";
 
 function rfc4180Escape(value: string): string {

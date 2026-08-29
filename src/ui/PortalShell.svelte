@@ -2,19 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getUserById,
-    getUserImage,
-    getDefaultTerm,
-    getStudentContext,
-  } from "../api";
+  import { runtime } from "../adapters/runtime.svelte";
   import type { AgentContext } from "../sdk/types";
   import { notify } from "../notifications";
-  import ScheduleView from "./fsp/ScheduleView.svelte";
-  import MarksView from "./fsp/MarksView.svelte";
-  import FeedbackView from "./fsp/FeedbackView.svelte";
-  import HomeworksView from "./fsp/HomeworksView.svelte";
-  import NotificationsPanel from "./fsp/NotificationsPanel.svelte";
+  import UnavailableState from "./portal/UnavailableState.svelte";
+  import ScheduleView from "./portal/ScheduleView.svelte";
+  import MarksView from "./portal/MarksView.svelte";
+  import FeedbackView from "./portal/FeedbackView.svelte";
+  import HomeworksView from "./portal/HomeworksView.svelte";
+  import NotificationsPanel from "./portal/NotificationsPanel.svelte";
   import {
     ACCENTS,
     DARK_FLAVORS,
@@ -22,10 +18,10 @@
     applyTheme,
     theme,
   } from "../theme.svelte";
-  import EventsView from "./fsp/EventsView.svelte";
-  import StandingView from "./fsp/StandingView.svelte";
-  import ClubsView from "./fsp/ClubsView.svelte";
-  import ChatSidebar from "./fsp/ChatSidebar.svelte";
+  import EventsView from "./portal/EventsView.svelte";
+  import StandingView from "./portal/StandingView.svelte";
+  import ClubsView from "./portal/ClubsView.svelte";
+  import ChatSidebar from "./portal/ChatSidebar.svelte";
 
   const NAV_IDS = [
     "home",
@@ -44,7 +40,7 @@
     icon: string;
   }
 
-  const navItems: NavItem[] = [
+  const ALL_NAV_ITEMS: NavItem[] = [
     { id: "home", label: "Home", icon: "home" },
     { id: "feedback", label: "Feedback", icon: "chat" },
     { id: "homeworks", label: "Homeworks", icon: "assignment" },
@@ -53,6 +49,20 @@
     { id: "events", label: "Events", icon: "event" },
     { id: "standing", label: "Standing", icon: "shield_person" },
   ];
+
+  const SUPPORTED_NAV: Record<NavItem["id"], boolean> = {
+    home: runtime.adapter.features.schedule,
+    feedback: runtime.adapter.features.feedback,
+    homeworks: runtime.adapter.features.homeworks,
+    marks: runtime.adapter.features.marks,
+    clubs: runtime.adapter.features.clubs,
+    events: runtime.adapter.features.events,
+    standing: runtime.adapter.features.standing,
+  };
+
+  const navItems = $derived(
+    ALL_NAV_ITEMS.filter((item) => SUPPORTED_NAV[item.id]),
+  );
 
   let { userId }: { userId: string } = $props();
 
@@ -158,7 +168,8 @@
 
   $effect(() => {
     const id = userId;
-    getUserById(id)
+    runtime.adapter
+      .getUserById(id)
       .then((user) => {
         name = user.name;
         rollNumber = user.rollNumber;
@@ -167,18 +178,18 @@
         notify("Failed to load profile", "error");
       });
 
-    getUserImage(id).then((image) => {
+    runtime.adapter.getUserImage(id).then((image) => {
       if (image) avatar = image;
     });
   });
 
   $effect(() => {
     const id = userId;
-    getStudentContext().then(async (ctx) => {
+    runtime.adapter.getStudentContext().then(async (ctx) => {
       let termId = "";
       let termName = "Current Term";
       try {
-        const term = await getDefaultTerm(ctx.campusId);
+        const term = await runtime.adapter.getDefaultTerm(ctx.campusId);
         termId = term.termId;
         termName = term.semesterName;
       } catch {}
@@ -223,9 +234,8 @@
 
   function onNav(item: NavItem) {
     if (item.id === activeNav) return;
-    const enabled: PageId[] = ["home", "feedback", "homeworks", "marks", "clubs", "events", "standing"];
-    if (!enabled.includes(item.id)) {
-      notify(`${item.label} coming soon`, "info");
+    if (!SUPPORTED_NAV[item.id]) {
+      notify(`${item.label} unavailable for this portal provider`, "info");
       return;
     }
     activeNav = item.id;
@@ -267,15 +277,17 @@
       </div>
     </div>
     <div class="header-right">
-      <button
-        class="icon-btn"
-        class:active={chatOpen}
-        aria-label="Toggle AI assistant"
-        aria-expanded={chatOpen}
-        onclick={toggleChat}
-      >
-        <span class="material-symbols-rounded" aria-hidden="true">chat</span>
-      </button>
+      {#if runtime.adapter.features.session}
+        <button
+          class="icon-btn"
+          class:active={chatOpen}
+          aria-label="Toggle AI assistant"
+          aria-expanded={chatOpen}
+          onclick={toggleChat}
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">chat</span>
+        </button>
+      {/if}
       <div class="settings-wrap">
         <button
           class="icon-btn"
@@ -367,17 +379,19 @@
       <button class="icon-btn" aria-label="Refresh" onclick={refresh}>
         <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
       </button>
-      <button
-        class="icon-btn"
-        class:has-badge={unreadCount > 0}
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
-        onclick={onNotifications}
-      >
-        <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
-        {#if unreadCount > 0}
-          <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
-        {/if}
-      </button>
+      {#if runtime.adapter.features.notifications}
+        <button
+          class="icon-btn"
+          class:has-badge={unreadCount > 0}
+          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+          onclick={onNotifications}
+        >
+          <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
+          {#if unreadCount > 0}
+            <span class="badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
+          {/if}
+        </button>
+      {/if}
     </div>
   </header>
 
@@ -424,27 +438,55 @@
 
 <main class="main">
       {#if activeNav === "homeworks"}
-        <HomeworksView studentId={userId} bind:this={pages.homeworks} />
+        {#if runtime.adapter.features.homeworks}
+          <HomeworksView studentId={userId} bind:this={pages.homeworks} />
+        {:else}
+          <UnavailableState />
+        {/if}
       {:else if activeNav === "feedback"}
-        <FeedbackView studentId={userId} bind:this={pages.feedback} />
+        {#if runtime.adapter.features.feedback}
+          <FeedbackView studentId={userId} bind:this={pages.feedback} />
+        {:else}
+          <UnavailableState />
+        {/if}
       {:else if activeNav === "marks"}
-        <MarksView studentId={userId} bind:this={pages.marks} />
+        {#if runtime.adapter.features.marks}
+          <MarksView studentId={userId} bind:this={pages.marks} />
+        {:else}
+          <UnavailableState />
+        {/if}
       {:else if activeNav === "events"}
-        <EventsView studentId={userId} bind:this={pages.events} />
+        {#if runtime.adapter.features.events}
+          <EventsView studentId={userId} bind:this={pages.events} />
+        {:else}
+          <UnavailableState />
+        {/if}
       {:else if activeNav === "standing"}
-        <StandingView studentId={userId} bind:this={pages.standing} />
+        {#if runtime.adapter.features.standing}
+          <StandingView studentId={userId} bind:this={pages.standing} />
+        {:else}
+          <UnavailableState />
+        {/if}
       {:else if activeNav === "clubs"}
-        <ClubsView studentId={userId} bind:this={pages.clubs} />
-      {:else}
-        <ScheduleView
-          studentId={userId}
-          bind:dateLabel={scheduleDate}
-          bind:this={pages.home}
-        />
+        {#if runtime.adapter.features.clubs}
+          <ClubsView studentId={userId} bind:this={pages.clubs} />
+        {:else}
+          <UnavailableState />
+        {/if}
+      {:else if activeNav === "home"}
+        {#if runtime.adapter.features.schedule}
+          <ScheduleView
+            studentId={userId}
+            bind:dateLabel={scheduleDate}
+            bind:this={pages.home}
+          />
+        {:else}
+          <UnavailableState />
+        {/if}
       {/if}
     </main>
 
-    {#if chatOpen}
+    {#if chatOpen && runtime.adapter.features.session}
       <aside
         class="chat-panel"
         style={`width: ${chatWidth}px;`}
@@ -466,12 +508,14 @@
     {/if}
   </div>
 
-  <NotificationsPanel
-    {userId}
-    open={notifOpen}
-    onclose={() => (notifOpen = false)}
-    onunread={(n) => (unreadCount = n)}
-  />
+  {#if runtime.adapter.features.notifications}
+    <NotificationsPanel
+      {userId}
+      open={notifOpen}
+      onclose={() => (notifOpen = false)}
+      onunread={(n) => (unreadCount = n)}
+    />
+  {/if}
 </div>
 
 <style>

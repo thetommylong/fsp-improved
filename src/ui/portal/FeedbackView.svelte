@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import { getFeedbackStatus, getUnfinishedFeedbacks, updateFeedbackAnswer, updateFeedbackComment, updateFeedbackStatus } from "../../api";
+  import { runtime } from "../../adapters/runtime.svelte";
   import type {
     StudentFeedbackLecturerResult,
     FeedbackQuestionResponse,
     FeedbackAnswerUpdate,
     FeedbackCommentUpdate,
     FeedbackStatusUpdate,
-  } from "../../types/fsp";
+  } from "../../types/portal";
   import { notify } from "../../notifications";
 
   let { studentId }: { studentId: string } = $props();
@@ -57,7 +57,7 @@
   async function load(): Promise<void> {
     loading = true;
     try {
-      const data = await getFeedbackStatus(studentId);
+      const data = await runtime.adapter.getFeedbackStatus(studentId);
       pending = data.unDoneFeedbacks;
       submitted = data.feedbacks;
     } catch {
@@ -80,7 +80,10 @@
       if (row.termId === "FAKE") {
         formRow = row;
       } else {
-        const rows = await getUnfinishedFeedbacks(row.termId, studentId);
+        const rows = await runtime.adapter.getUnfinishedFeedbacks(
+          row.termId,
+          studentId,
+        );
         const found = rows.find((r) => r.feedbackLecturerId === row.feedbackLecturerId);
         if (!found) throw new Error("Row not found");
         formRow = found;
@@ -106,8 +109,9 @@
     if (slot === 1) comment1 = value;
     else comment2 = value;
     if (active?.termId === "FAKE") return;
+    if (!runtime.adapter.features.supportsMutations) return;
     try {
-      await updateFeedbackComment(slot, { feedbackLecturerId: active?.feedbackLecturerId ?? "", studentId: studentId ?? "", comment: value });
+      await runtime.adapter.updateFeedbackComment(slot, { feedbackLecturerId: active?.feedbackLecturerId ?? "", studentId: studentId ?? "", comment: value });
     } catch {
       notify("Lưu nhận xét thất bại", "error");
     }
@@ -131,7 +135,8 @@
     if (!canFinish || submitting || !formRow) return;
     submitting = true;
     try {
-      await updateFeedbackStatus({ feedbackLecturerId: formRow.feedbackLecturerId, studentId: studentId ?? "", status: true });
+      if (!runtime.adapter.features.supportsMutations) return;
+      await runtime.adapter.updateFeedbackStatus({ feedbackLecturerId: formRow.feedbackLecturerId, studentId: studentId ?? "", status: true });
       notify("Phản hồi đã gửi", "success");
       discardForm();
       requestAnimationFrame(() => lastTrigger?.focus());

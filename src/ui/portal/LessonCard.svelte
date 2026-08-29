@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import type { ScheduleEntry } from "../../types/fsp";
+  import type { ScheduleEntry } from "../../types/portal";
 
   let {
     entry,
@@ -16,7 +16,7 @@
     onopen?: () => void;
   } = $props();
 
-  const isEdunext = $derived(Boolean(entry.eduNextUrl));
+  const isLms = $derived(Boolean(entry.eduNextUrl));
 
   const statusClass = $derived.by(() => {
     switch (entry.status) {
@@ -80,7 +80,7 @@
   }
 
   function onKeydown(e: KeyboardEvent) {
-    if (isEdunext && (e.key === "Enter" || e.key === " ")) {
+    if (isLms && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       open();
     }
@@ -108,7 +108,7 @@
 <button
   type="button"
   class="lesson clickable"
-  class:edunext={isEdunext}
+  class:lms={isLms}
   class:absent={statusClass === "absent"}
   class:late={statusClass === "late"}
   class:study-leave={statusClass === "study-leave"}
@@ -162,7 +162,7 @@
     white-space: nowrap;
   }
 
-  .lesson.edunext {
+  .lesson.lms {
     --stripe: var(--green);
   }
 
@@ -170,7 +170,7 @@
     --stripe: var(--red);
   }
 
-  .lesson.absent.edunext .lesson-accent {
+  .lesson.absent.lms .lesson-accent {
     background: linear-gradient(to bottom, var(--red), var(--green));
   }
 
@@ -178,7 +178,7 @@
     --stripe: var(--blue);
   }
 
-  .lesson.late.edunext .lesson-accent {
+  .lesson.late.lms .lesson-accent {
     background: linear-gradient(to bottom, var(--blue), var(--green));
   }
 
@@ -186,7 +186,7 @@
     --stripe: var(--yellow);
   }
 
-  .lesson.study-leave.edunext .lesson-accent {
+  .lesson.study-leave.lms .lesson-accent {
     background: linear-gradient(to bottom, var(--yellow), var(--green));
   }
 

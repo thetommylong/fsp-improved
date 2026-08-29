@@ -3,8 +3,8 @@
 // Copyright (C) 2026 thetommylong
 
   import { Temporal } from "@js-temporal/polyfill";
-  import { getCalendarByStudentAndDateRange } from "../../api";
-  import type { ScheduleEntry } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { ScheduleEntry } from "../../types/portal";
   import { readWeek, writeWeek } from "../../scheduleCache";
   import { notify } from "../../notifications";
   import { getWeek } from "./src/dateHelper";
@@ -64,7 +64,7 @@
     }
     try {
       const sunday = monday.add({ days: 6 });
-      const data = await getCalendarByStudentAndDateRange(
+      const data = await runtime.adapter.getCalendarByStudentAndDateRange(
         studentId,
         monday.toString(),
         sunday.toString(),
@@ -113,7 +113,7 @@
     checkingId = id;
     try {
       const sunday = monday.add({ days: 6 });
-      const data = await getCalendarByStudentAndDateRange(
+      const data = await runtime.adapter.getCalendarByStudentAndDateRange(
         studentId,
         monday.toString(),
         sunday.toString(),

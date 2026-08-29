@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-import type { ScheduleEntry } from "./types/fsp";
+import type { ScheduleEntry } from "./types/portal";
 
 const PREFIX = "fsp:cal:";
 const MAX_WEEKS = 12;

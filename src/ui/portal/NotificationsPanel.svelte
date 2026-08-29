@@ -2,12 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getAllNotificationTypes,
-    getNotificationsByRecords,
-    markNotificationAsRead,
-  } from "../../api";
-  import type { Notification, NotificationsResult } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { Notification, NotificationsResult } from "../../types/portal";
 
   let {
     userId,
@@ -34,9 +30,9 @@
     error = false;
     try {
       const [res, types] = await Promise.all([
-        getNotificationsByRecords(userId, 30),
+        runtime.adapter.getNotificationsByRecords(userId, 30),
         typeCodes.size === 0
-          ? getAllNotificationTypes()
+          ? runtime.adapter.getAllNotificationTypes()
           : Promise.resolve(null),
       ]);
       result = res;
@@ -78,7 +74,9 @@
     marking.add(n.notificationId);
     n.isRead = true;
     try {
-      await markNotificationAsRead(n.notificationId);
+      if (runtime.adapter.features.supportsMutations) {
+        await runtime.adapter.markNotificationAsRead(n.notificationId);
+      }
       if (result) {
         result.numberOfUnreadNotifications = Math.max(
           0,

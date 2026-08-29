@@ -3,8 +3,8 @@
 // Copyright (C) 2026 thetommylong
 
   import { Temporal } from "@js-temporal/polyfill";
-  import type { ScheduleEntry } from "../../types/fsp";
-  import { getEdunextLaunchUrl } from "../../api";
+  import type { ScheduleEntry } from "../../types/portal";
+  import { runtime } from "../../adapters/runtime.svelte";
 
   let {
     entry,
@@ -56,11 +56,11 @@
     }
   }
 
-  async function onEdunextClick(e: MouseEvent) {
+  async function onSsoClick(e: MouseEvent) {
     if (!entry.eduNextUrl) return;
     e.preventDefault();
     try {
-      const url = await getEdunextLaunchUrl(entry.eduNextUrl);
+      const url = await runtime.adapter.buildSsoUrl(entry.eduNextUrl);
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {
       window.open(entry.eduNextUrl, "_blank", "noopener,noreferrer");
@@ -155,9 +155,9 @@
             href={entry.eduNextUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onclick={onEdunextClick}
+            onclick={onSsoClick}
           >
-            Open in Edunext
+            Open in LMS
           </a>
         {/if}
       </div>

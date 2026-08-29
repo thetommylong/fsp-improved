@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import { getStudentHomeWorks, getDefaultTerm, getTokenPayload } from "../../api";
-  import type { StudentHomeWork } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { StudentHomeWork } from "../../types/portal";
   import { notify } from "../../notifications";
 
   let { studentId }: { studentId: string } = $props();
@@ -43,10 +43,9 @@
   async function load(): Promise<void> {
     loading = true;
     try {
-      const payload = getTokenPayload();
-      const campusId = (payload?.campusId || payload?.campusID) as string;
-      const term = await getDefaultTerm(campusId);
-      items = await getStudentHomeWorks(studentId, term.termId);
+      const ctx = await runtime.adapter.getStudentContext();
+      const term = await runtime.adapter.getDefaultTerm(ctx.campusId);
+      items = await runtime.adapter.getStudentHomeWorks(studentId, term.termId);
     } catch {
       notify("Failed to load homeworks", "error");
     } finally {

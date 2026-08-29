@@ -2,11 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getTokenPayload,
-    getMarkCommonByStudent,
-  } from "../../api";
-  import type { Term, MarkCommon } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { Term, MarkCommon } from "../../types/portal";
   import {
     parseScore,
     getGKValue,
@@ -113,10 +110,10 @@
   async function fetchSibling(sib: Term) {
     siblingLoading = true;
     try {
-      const studentId = getTokenPayload()?.studentId as string;
+      const studentId = (await runtime.adapter.getStudentContext()).studentId;
       if (!studentId) return;
       const year = `${sib.academicStartYear}-${sib.academicEndYear}`;
-      siblingMarks = await getMarkCommonByStudent(
+      siblingMarks = await runtime.adapter.getMarkCommonByStudent(
         year,
         sib.termOrder,
         studentId,

@@ -7,6 +7,7 @@ import {
   getFullSchema,
   getToolMeta,
   isReadOnly,
+  isToolSupported,
 } from "./registry";
 
 export const MAX_TOOL_TURNS = 8;
@@ -45,6 +46,13 @@ export async function executeFunction(
   const validationError = validateArgs(name, args);
   if (validationError) {
     return { content: validationError, error: true };
+  }
+
+  if (!isToolSupported(name)) {
+    return {
+      content: `Tool ${name} is not available for the current portal provider.`,
+      error: true,
+    };
   }
 
   if (!isReadOnly(name) && requestConfirmation) {

@@ -2,15 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getDisciplineLevels,
-    getDisciplineRules,
-    getDisciplineRulesByStudent,
-    getRewardsByCampus,
-    getRewardsByStudent,
-    getTokenPayload,
-  } from "../../api";
-  import type { DisciplineRuleStudent, RewardStudent } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { DisciplineRuleStudent, RewardStudent } from "../../types/portal";
   import { notify } from "../../notifications";
 
   let { studentId }: { studentId: string } = $props();
@@ -67,16 +60,16 @@
   async function load(): Promise<void> {
     loading = true;
     try {
-      const payload = getTokenPayload();
-      const campusId = String(payload?.campusId ?? payload?.campusID ?? "");
+      const ctx = await runtime.adapter.getStudentContext();
+      const campusId = ctx.campusId;
 
       const [rewardStudents, disciplineStudents, levels, rules, campusRewards] =
         await Promise.all([
-          getRewardsByStudent(studentId),
-          getDisciplineRulesByStudent(studentId),
-          getDisciplineLevels(campusId),
-          getDisciplineRules(campusId),
-          getRewardsByCampus(campusId),
+          runtime.adapter.getRewardsByStudent(studentId),
+          runtime.adapter.getDisciplineRulesByStudent(studentId),
+          runtime.adapter.getDisciplineLevels(campusId),
+          runtime.adapter.getDisciplineRules(campusId),
+          runtime.adapter.getRewardsByCampus(campusId),
         ]);
 
       const levelMap = new Map(levels.map((l) => [l.disciplineLevelId, l]));

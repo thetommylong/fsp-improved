@@ -2,7 +2,32 @@
 // Copyright (C) 2026 thetommylong
 
 import type { ToolMeta, ParamMeta, JsonSchema, ToolDefinition } from "./types";
-import * as api from "../api";
+import type { FeatureFlag } from "./adapter";
+import { runtime } from "../adapters/runtime.svelte";
+
+const CATEGORY_CAPABILITY: Record<string, FeatureFlag> = {
+  session: "session",
+  terms: "schedule",
+  feedback: "feedback",
+  homework: "homeworks",
+  courses: "marks",
+  marks: "marks",
+  classes: "marks",
+  clubs: "clubs",
+  events: "events",
+  campus: "schedule",
+  sso: "schedule",
+  finance: "marks",
+  discipline: "standing",
+  rewards: "standing",
+  dormitory: "standing",
+  surveys: "feedback",
+  notifications: "notifications",
+  menu: "session",
+  users: "session",
+  students: "session",
+  schedule: "schedule",
+};
 
 const TOOLS: ToolMeta[] = [
   {
@@ -457,16 +482,17 @@ const TOOLS: ToolMeta[] = [
     returnType: "Campus",
   },
   {
-    name: "getEdunextLaunchUrl",
-    description: "Build the SSO launch URL for the Edunext LMS",
+    name: "buildSsoUrl",
+    description:
+      "Build a single sign-on launch URL for a learning management system link",
     category: "sso",
     read: true,
     params: [
       {
-        name: "eduNextUrl",
+        name: "url",
         type: "string",
         required: true,
-        description: "Edunext base URL",
+        description: "LMS resource URL to build an SSO login for",
       },
     ],
     returnType: "string",
@@ -913,6 +939,27 @@ export function getToolMeta(name: string): ToolMeta | null {
   return TOOLS.find((t) => t.name === name) ?? null;
 }
 
+export function getCapability(name: string): FeatureFlag | null {
+  const tool = TOOLS.find((t) => t.name === name);
+  if (!tool) return null;
+  return CATEGORY_CAPABILITY[tool.category] ?? null;
+}
+
+export function isToolSupported(name: string): boolean {
+  const tool = TOOLS.find((t) => t.name === name);
+  if (!tool) return false;
+  if (!tool.read && !runtime.adapter.features.supportsMutations) return false;
+  const capability = CATEGORY_CAPABILITY[tool.category];
+  if (!capability) return false;
+  return runtime.adapter.features[capability];
+}
+
+export function getAvailableToolNames(): string[] {
+  return TOOLS.filter((tool) => isToolSupported(tool.name)).map(
+    (tool) => tool.name,
+  );
+}
+
 export function isReadOnly(name: string): boolean {
   return TOOLS.find((t) => t.name === name)?.read ?? true;
 }
@@ -921,22 +968,24 @@ export function searchFunctions(query: string): ToolMeta[] {
   const q = query.toLowerCase();
   const words = q.split(/\s+/).filter(Boolean);
 
-  const scored = TOOLS.map((tool) => {
-    let score = 0;
-    const nameLower = tool.name.toLowerCase();
-    const descLower = tool.description.toLowerCase();
+  const scored = TOOLS.filter((tool) => isToolSupported(tool.name)).map(
+    (tool) => {
+      let score = 0;
+      const nameLower = tool.name.toLowerCase();
+      const descLower = tool.description.toLowerCase();
 
-    if (nameLower.includes(q)) score += 5;
-    if (tool.category === q) score += 4;
+      if (nameLower.includes(q)) score += 5;
+      if (tool.category === q) score += 4;
 
-    for (const word of words) {
-      if (nameLower.includes(word)) score += 3;
-      if (tool.category === word) score += 2;
-      if (descLower.includes(word)) score += 1;
-    }
+      for (const word of words) {
+        if (nameLower.includes(word)) score += 3;
+        if (tool.category === word) score += 2;
+        if (descLower.includes(word)) score += 1;
+      }
 
-    return { tool, score };
-  });
+      return { tool, score };
+    },
+  );
 
   return scored
     .filter((s) => s.score > 0)
@@ -946,7 +995,7 @@ export function searchFunctions(query: string): ToolMeta[] {
 }
 
 export function buildCompactIndex(): string {
-  const lines = TOOLS.map(
+  const lines = TOOLS.filter((tool) => isToolSupported(tool.name)).map(
     (t) =>
       `${t.name} — ${t.category}${t.read ? "" : " [MUTATION]"} — ${t.description} [${t.params.map((p) => `${p.name}: ${p.type}${p.required ? "" : "?"}`).join(", ")}]`,
   );
@@ -955,6 +1004,7 @@ export function buildCompactIndex(): string {
 
 export function getToolDefinitions(names: string[]): ToolDefinition[] {
   return names
+    .filter((name) => isToolSupported(name))
     .map((name) => {
       const meta = TOOLS.find((t) => t.name === name);
       if (!meta) return null;
@@ -976,160 +1026,170 @@ export function callApiFunction(
 ): Promise<unknown> {
   switch (name) {
     case "getStudentContext":
-      return api.getStudentContext();
+      return runtime.adapter.getStudentContext();
     case "getDefaultTerm":
-      return api.getDefaultTerm(args.campusId as string);
+      return runtime.adapter.getDefaultTerm(args.campusId as string);
     case "getTermsByCampus":
-      return api.getTermsByCampus(args.campusId as string);
+      return runtime.adapter.getTermsByCampus(args.campusId as string);
     case "getFeedbackStatus":
-      return api.getFeedbackStatus(args.studentId as string);
+      return runtime.adapter.getFeedbackStatus(args.studentId as string);
     case "getUnfinishedFeedbacks":
-      return api.getUnfinishedFeedbacks(
+      return runtime.adapter.getUnfinishedFeedbacks(
         args.termId as string,
         args.studentId as string,
       );
     case "updateFeedbackAnswer":
-      return api.updateFeedbackAnswer({
+      return runtime.adapter.updateFeedbackAnswer({
         feedbackLecturerId: args.feedbackLecturerId as string,
         studentId: args.studentId as string,
         feedbackQuestionId: args.feedbackQuestionId as string,
         feedbackAnswerId: args.feedbackAnswerId as string,
       });
     case "updateFeedbackComment":
-      return api.updateFeedbackComment(args.slot as 1 | 2, {
+      return runtime.adapter.updateFeedbackComment(args.slot as 1 | 2, {
         feedbackLecturerId: args.feedbackLecturerId as string,
         studentId: args.studentId as string,
         comment: args.comment as string,
       });
     case "updateFeedbackStatus":
-      return api.updateFeedbackStatus({
+      return runtime.adapter.updateFeedbackStatus({
         feedbackLecturerId: args.feedbackLecturerId as string,
         studentId: args.studentId as string,
         status: args.status as boolean,
       });
     case "getStudentHomeWorks":
-      return api.getStudentHomeWorks(
+      return runtime.adapter.getStudentHomeWorks(
         args.studentId as string,
         args.termId as string,
       );
     case "getCoursesByTerm":
-      return api.getCoursesByTerm(
+      return runtime.adapter.getCoursesByTerm(
         args.termId as string,
         args.studentId as string,
       );
     case "getAcademicYears":
-      return api.getAcademicYears(args.studentId as string);
+      return runtime.adapter.getAcademicYears(args.studentId as string);
     case "getMarkCommonByStudent":
-      return api.getMarkCommonByStudent(
+      return runtime.adapter.getMarkCommonByStudent(
         args.academicYear as string,
         args.termOrder as number,
         args.studentId as string,
       );
     case "getBlockMarkPeriods":
-      return api.getBlockMarkPeriods(args.campusId as string);
+      return runtime.adapter.getBlockMarkPeriods(args.campusId as string);
     case "getMainClassesByStudent":
-      return api.getMainClassesByStudent(
+      return runtime.adapter.getMainClassesByStudent(
         args.studentId as string,
         args.termId as string,
       );
     case "getKqrlByStudent":
-      return api.getKqrlByStudent(
+      return runtime.adapter.getKqrlByStudent(
         args.academicYear as string,
         args.termOrder as number,
         args.studentId as string,
       );
     case "getNlpcByStudent":
-      return api.getNlpcByStudent(
+      return runtime.adapter.getNlpcByStudent(
         args.academicYear as string,
         args.termOrder as number,
         args.studentId as string,
       );
     case "getGradesByCampus":
-      return api.getGradesByCampus(args.campusId as string);
+      return runtime.adapter.getGradesByCampus(args.campusId as string);
     case "getClubsByTerm":
-      return api.getClubsByTerm(
+      return runtime.adapter.getClubsByTerm(
         args.termId as string,
         args.studentId as string,
       );
     case "getUndoneHomework":
-      return api.getUndoneHomework(
+      return runtime.adapter.getUndoneHomework(
         args.studentId as string,
         args.termId as string,
       );
     case "getEventsByTerm":
-      return api.getEventsByTerm(
+      return runtime.adapter.getEventsByTerm(
         args.termId as string,
         args.studentId as string,
       );
     case "getCampusesByIds":
-      return api.getCampusesByIds(args.campusIds as string[]);
+      return runtime.adapter.getCampusesByIds(args.campusIds as string[]);
     case "getCampus":
-      return api.getCampus(args.campusId as string);
-    case "getEdunextLaunchUrl":
-      return api.getEdunextLaunchUrl(args.eduNextUrl as string);
+      return runtime.adapter.getCampus(args.campusId as string);
+    case "buildSsoUrl":
+      return runtime.adapter.buildSsoUrl(args.url as string);
     case "getClubSubjectsByIds":
-      return api.getClubSubjectsByIds(args.clubSubjectIds as string[]);
+      return runtime.adapter.getClubSubjectsByIds(
+        args.clubSubjectIds as string[],
+      );
     case "getClubSubjectTypesByIds":
-      return api.getClubSubjectTypesByIds(args.clubSubjectIds as string[]);
+      return runtime.adapter.getClubSubjectTypesByIds(
+        args.clubSubjectIds as string[],
+      );
     case "getClubStudentStatistics":
-      return api.getClubStudentStatistics(args.studentIds as string[]);
+      return runtime.adapter.getClubStudentStatistics(
+        args.studentIds as string[],
+      );
     case "getDiscountAndPriceByStudent":
-      return api.getDiscountAndPriceByStudent(
+      return runtime.adapter.getDiscountAndPriceByStudent(
         args.termId as string,
         args.studentId as string,
       );
     case "getEventStatistics":
-      return api.getEventStatistics(args.eventIds as string[]);
+      return runtime.adapter.getEventStatistics(args.eventIds as string[]);
     case "getEventImages":
-      return api.getEventImages(args.eventIds as string[]);
+      return runtime.adapter.getEventImages(args.eventIds as string[]);
     case "toggleEventRegistration":
-      return api.toggleEventRegistration(
+      return runtime.adapter.toggleEventRegistration(
         args.eventId as string,
         args.studentId as string,
         args.eventData as Record<string, unknown>,
       );
     case "getDisciplineLevels":
-      return api.getDisciplineLevels(args.campusId as string);
+      return runtime.adapter.getDisciplineLevels(args.campusId as string);
     case "getDisciplineRules":
-      return api.getDisciplineRules(args.campusId as string);
+      return runtime.adapter.getDisciplineRules(args.campusId as string);
     case "getDisciplineRulesByStudent":
-      return api.getDisciplineRulesByStudent(args.studentId as string);
+      return runtime.adapter.getDisciplineRulesByStudent(
+        args.studentId as string,
+      );
     case "getRewardBonusTypes":
-      return api.getRewardBonusTypes(args.campusId as string);
+      return runtime.adapter.getRewardBonusTypes(args.campusId as string);
     case "getRewardFrequencies":
-      return api.getRewardFrequencies(args.campusId as string);
+      return runtime.adapter.getRewardFrequencies(args.campusId as string);
     case "getRewardsByCampus":
-      return api.getRewardsByCampus(args.campusId as string);
+      return runtime.adapter.getRewardsByCampus(args.campusId as string);
     case "getRewardsByStudent":
-      return api.getRewardsByStudent(args.studentId as string);
+      return runtime.adapter.getRewardsByStudent(args.studentId as string);
     case "hasDormBedStudent":
-      return api.hasDormBedStudent(args.studentId as string);
+      return runtime.adapter.hasDormBedStudent(args.studentId as string);
     case "getSurveyLink":
-      return api.getSurveyLink();
+      return runtime.adapter.getSurveyLink();
     case "getAllNotificationTypes":
-      return api.getAllNotificationTypes();
+      return runtime.adapter.getAllNotificationTypes();
     case "getNotificationsByRecords":
-      return api.getNotificationsByRecords(
+      return runtime.adapter.getNotificationsByRecords(
         args.userId as string,
         args.records as number,
       );
     case "markNotificationAsRead":
-      return api.markNotificationAsRead(args.notificationId as string);
+      return runtime.adapter.markNotificationAsRead(
+        args.notificationId as string,
+      );
     case "getMenuRoleCampuses":
-      return api.getMenuRoleCampuses(
+      return runtime.adapter.getMenuRoleCampuses(
         args.roleCode as string,
         args.campusId as string,
       );
     case "getUserById":
-      return api.getUserById(args.userId as string);
+      return runtime.adapter.getUserById(args.userId as string);
     case "getUserImage":
-      return api.getUserImage(args.userId as string);
+      return runtime.adapter.getUserImage(args.userId as string);
     case "getStudentById":
-      return api.getStudentById(args.studentId as string);
+      return runtime.adapter.getStudentById(args.studentId as string);
     case "getTimeSlotsByTerm":
-      return api.getTimeSlotsByTerm(args.termIds as string[]);
+      return runtime.adapter.getTimeSlotsByTerm(args.termIds as string[]);
     case "getCalendarByStudentAndDateRange":
-      return api.getCalendarByStudentAndDateRange(
+      return runtime.adapter.getCalendarByStudentAndDateRange(
         args.studentId as string,
         args.startDate as string,
         args.endDate as string,

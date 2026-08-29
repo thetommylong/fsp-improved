@@ -35,7 +35,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       userscript: {
         namespace: 'npm/vite-plugin-monkey',
-        match: ['*://*.fpt.edu.vn/*'],
+        match: ['*://*/*'],
         license: 'AGPL-3.0-only',
         'run-at': 'document-start',
         grant: [

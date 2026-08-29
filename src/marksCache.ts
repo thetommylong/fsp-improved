@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-import type { MarkCommon, Term } from "./types/fsp";
+import type { MarkCommon, Term } from "./types/portal";
 
 const MARKS_PREFIX = "fsp:marks:";
 const TERMS_PREFIX = "fsp:terms:";

@@ -13,7 +13,7 @@ No test suite exists. Verify changes in CI's order: `pnpm lint` → `pnpm check`
 
 ## Architecture
 
-One userscript targeting two host sites. `src/site.ts` derives `"fsp" | "edunext" | "unknown"` from the hostname.
+The userscript matches **every site** (`match: ['*://*/*']`) but stays a no-op everywhere except the FSP portal: each script exports `export const site = "fsp"` or self-gates on `site` from `src/site.ts`, so on any other host the shell never mounts and the devtools patch never runs. The `?adapter=mock` URL param (or GM `portal:adapter` = "mock") overrides the gate so the shell can be previewed anywhere.
 
 - Entry `src/index.ts` auto-discovers every `src/scripts/*.ts` via `import.meta.glob`. Each script exports a default (optionally async) function and optionally `export const site` to restrict itself to one site. Nothing needs registering — drop in a file and it loads.
 - Scripts initialize concurrently (`Promise.all`); the `NN-` filename prefixes do not sequence execution.

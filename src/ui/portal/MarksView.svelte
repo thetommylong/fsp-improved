@@ -2,13 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import {
-    getDefaultTerm,
-    getMarkCommonByStudent,
-    getTermsByCampus,
-    getTokenPayload,
-  } from "../../api";
-  import type { MarkCommon, Term } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { MarkCommon, Term } from "../../types/portal";
   import { notify } from "../../notifications";
   import {
     readTermMarks,
@@ -139,7 +134,8 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
   let termPicked = false;
 
   async function init() {
-    const campusId = getTokenPayload()?.campusId as string;
+    const ctx = await runtime.adapter.getStudentContext();
+    const campusId = ctx.campusId;
     const cached = readTerms(campusId);
     if (cached) {
       terms = cached.terms;
@@ -147,8 +143,8 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
     }
     try {
       const [list, def] = await Promise.all([
-        getTermsByCampus(campusId),
-        getDefaultTerm(campusId),
+        runtime.adapter.getTermsByCampus(campusId),
+        runtime.adapter.getDefaultTerm(campusId),
       ]);
       terms = list;
       writeTerms(campusId, list, def.termId);
@@ -185,7 +181,11 @@ import PredictorDrawer from "./PredictorDrawer.svelte";
     }
     try {
       const year = `${term.academicStartYear}-${term.academicEndYear}`;
-      const data = await getMarkCommonByStudent(year, term.termOrder, studentId);
+      const data = await runtime.adapter.getMarkCommonByStudent(
+        year,
+        term.termOrder,
+        studentId,
+      );
       cache.set(termId, data);
       writeTermMarks(studentId, termId, data);
       if (selectedTermId === termId) {

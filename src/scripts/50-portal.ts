@@ -2,37 +2,15 @@
 // Copyright (C) 2026 thetommylong
 
 import { mount } from "svelte";
-import { isTokenExpired, getTokenPayload } from "../api";
 import { site } from "../site";
-import Fsp from "../ui/Fsp.svelte";
-import sharedCss from "../ui/fsp/shared.css?inline";
-
-const TOKEN_POLL_MS = 250;
-const TOKEN_WAIT_MS = 60_000;
-
-function waitForValidToken(): Promise<string | null> {
-  return new Promise((resolve) => {
-    const startedAt = Date.now();
-
-    const timer = setInterval(() => {
-      const payload = getTokenPayload();
-      if (payload && !isTokenExpired(payload)) {
-        clearInterval(timer);
-        resolve(payload.userId as string);
-        return;
-      }
-      if (Date.now() - startedAt > TOKEN_WAIT_MS) {
-        clearInterval(timer);
-        resolve(null);
-      }
-    }, TOKEN_POLL_MS);
-  });
-}
+import { isMockForced, runtime } from "../adapters/runtime.svelte";
+import PortalShell from "../ui/PortalShell.svelte";
+import sharedCss from "../ui/portal/shared.css?inline";
 
 export default function () {
-  if (site !== "fsp") return;
+  if (site !== "fsp" && !isMockForced()) return;
 
-  void waitForValidToken().then((userId) => {
+  void runtime.adapter.waitForValidSession(60_000).then((userId) => {
     if (!userId) return;
     boot(userId);
   });
@@ -61,7 +39,7 @@ function boot(userId: string) {
     style.textContent = sharedCss;
     host.appendChild(style);
 
-    mount(Fsp, { target: host, props: { userId } });
+    mount(PortalShell, { target: host, props: { userId } });
 
     void Promise.allSettled([
       document.fonts.load('400 16px "Open Sans"'),

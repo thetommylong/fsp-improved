@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 thetommylong
 
-  import { getEventsByTerm, getDefaultTerm, getTokenPayload, toggleEventRegistration } from "../../api";
-  import type { EventStudent } from "../../types/fsp";
+  import { runtime } from "../../adapters/runtime.svelte";
+  import type { EventStudent } from "../../types/portal";
   import { notify } from "../../notifications";
 
   let { studentId }: { studentId: string } = $props();
@@ -16,10 +16,9 @@
   async function load(): Promise<void> {
     loading = true;
     try {
-      const payload = getTokenPayload();
-      const campusId = String(payload?.campusId ?? payload?.campusID ?? "");
-      const term = await getDefaultTerm(campusId);
-      items = await getEventsByTerm(term.termId, studentId);
+      const ctx = await runtime.adapter.getStudentContext();
+      const term = await runtime.adapter.getDefaultTerm(ctx.campusId);
+      items = await runtime.adapter.getEventsByTerm(term.termId, studentId);
     } catch {
       notify("Failed to load events", "error");
     } finally {
@@ -43,7 +42,8 @@
   async function handleToggle(ev: EventStudent): Promise<void> {
     togglingId = ev.event.eventId;
     try {
-      await toggleEventRegistration(
+      if (!runtime.adapter.features.supportsMutations) return;
+      await runtime.adapter.toggleEventRegistration(
         ev.event.eventId,
         studentId,
         ev.event as Record<string, unknown>,
