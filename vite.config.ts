@@ -33,6 +33,7 @@ export default defineConfig({
     svelte(),
     monkey({
       entry: 'src/index.ts',
+      build: { fileName: 'script.user.js' },
       userscript: {
         namespace: 'npm/vite-plugin-monkey',
         match: ['*://*/*'],

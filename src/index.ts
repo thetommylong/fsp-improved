@@ -10,10 +10,10 @@ if (site === "unknown") {
   log.log("no supported portal here — staying idle");
 } else {
   console.log(
-    `%c fsp-quality-of-life v${__BUILD__.version} (${__BUILD__.commit}) — AGPL-3.0-only`,
+    `%c portals-improved v${__BUILD__.version} (${__BUILD__.commit}) — AGPL-3.0-only`,
     "color:#cba6f7;font-weight:bold",
   );
-  console.log("https://github.com/thetommylong/fsp-improved");
+  console.log("https://github.com/thetommylong/portals-improved");
 
   const modules = import.meta.glob("./scripts/*.ts", { eager: true });
 

@@ -17,7 +17,7 @@ function createLogFn(
 }
 
 export function createLogger(file: string): Logger {
-  const prefix = `[FSP Improved] [${file}]`;
+  const prefix = `[Portals Improved] [${file}]`;
   return {
     log: createLogFn(console.log, prefix),
     warn: createLogFn(console.warn, prefix),

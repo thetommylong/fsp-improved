@@ -45,4 +45,4 @@ jobs:
             Automated build from the latest `main`.
             **Version:** v${{ steps.version.outputs.version }}
           make_latest: true
-          files: dist/fsp-quality-of-life.user.js
+          files: dist/script.user.js
